@@ -5,7 +5,7 @@ const { elasticClient } = require("../elasticsearch");
 // Get all nodes
 router.get("/latestData", async (req, res) => {
     try {
-      const { body } = await client.search({
+      const { body } = await elasticClient.search({
         index: nodes,
         size: 0,
         body: {
