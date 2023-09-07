@@ -3,7 +3,7 @@ var router = express.Router();
 const bcrypt = require('bcryptjs');
 
 const User = require("../models/user");
-router.post("/registerUser", async (req, res) => {
+router.post("/", async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -13,8 +13,9 @@ router.post("/registerUser", async (req, res) => {
         email : req.body.email,
         password : hashedPassword,
     })
-    User.findOne({email:req.body.email},(err,user1)=>{
-        if(user1){
+    console.log("IN REGISTER BACKEND");
+    const data = await User.findOne({email:req.body.email});
+        if(data){
             res.send({message:"user already exist"})
         }else {
             User.create(user)
@@ -27,5 +28,5 @@ router.post("/registerUser", async (req, res) => {
         }
     })
 
-})
+
 module.exports = router;

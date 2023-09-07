@@ -86,7 +86,7 @@ const Login = () => {
     const onSubmit = async (event) => {
 
         event.preventDefault();
-
+        console.log("You have successfully logged in");
         // if (CheckInputs()) {
         //     try {
         //         const loginResponse = await axios.post("http://localhost:4000/login", {

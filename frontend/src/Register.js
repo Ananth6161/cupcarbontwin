@@ -31,7 +31,7 @@ const Register = () => {
     const [name, setName] =useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    
+    const navigate = useNavigate();
     const [values, setValues] = useState({
         amount: '',
         password: '',
@@ -41,7 +41,7 @@ const Register = () => {
     });
 
     const onChangeName = (event) =>{
-        setName(event.target.name);
+        setName(event.target.value);
     }
     const onChangeEmail = (event) => {
         setEmail(event.target.value);
@@ -99,42 +99,38 @@ const Register = () => {
         event.preventDefault();
 
         if (CheckInputs()) {
-            try {
-                const loginResponse = await axios.post("http://localhost:4000/login", {
+                const newUser={
+                    name: name,
                     email: email,
-                    password: password
-                })
-
-                localStorage.setItem("token", loginResponse.data.token);
-
-                try {
-
-                    const res = await axios.get("http://localhost:4000/login/isUserAuth", {
-                        headers: {
-                            "x-access-token": localStorage.getItem("token"),
-                           
-                        }
-                    })
-
-                   
-                        navigate('/root')
-                    
-
+                    password: password,
                 }
-                catch (err) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: err.response.data.message
-                    })
-                }
-            }
-            catch (err) {
                 Swal.fire({
-                    icon: 'error',
-                    title: err.response.data.message
+                    title: "Please Wait",
+                    text: "Regetering",
+                    backdrop: "true",
+                    position: "center",
+                    allowOutsideClick: false,
                 })
+                Swal.showLoading()
+                const registerResponse = await axios.post("http://localhost:4000/register",newUser)
+                    .then(res => {
+                        Swal.close()
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'User Added Successfully'
+                        })
+                        // ClearForm()
+                        navigate('/') //going to login page
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        Swal.fire({
+                            icon: 'error',
+                            title: err.response.data.message
+                        })
+                    })
+
             }
-        }
 
     };
 
@@ -196,7 +192,7 @@ const Register = () => {
                                 }}
                                 variant="outlined"
                                 value={name}
-                                onChange={(event) => { setEmail(event.target.value) }}
+                                onChange={(event) => { setName(event.target.value) }}
                             />
                         </div>
 
