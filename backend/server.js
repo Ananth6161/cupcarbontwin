@@ -13,12 +13,19 @@ app.use(cors());
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true }));
 
-// Connection to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/' + process.env.DB_NAME, { useNewUrlParser: true });
-const connection = mongoose.connection;
-connection.once('open', function() {
-    console.log("MongoDB database connection established successfully !");
-})
+mongoose.connect(env.process.MONGODB_URI, {
+  useNewUrlParser: true
+});
+
+const db = mongoose.connection;
+
+db.once('open', () => {
+  console.log('Connected to MongoDB Atlas');
+});
+
+db.on('error', (error) => {
+  console.error('Error connecting to MongoDB Atlas:', error);
+});
 
 // setup API endpoints
 app.use("/login", loginRoute);
