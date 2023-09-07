@@ -98,43 +98,39 @@ const Register = () => {
 
         event.preventDefault();
 
-        // if (CheckInputs()) {
-        //     try {
-        //         const loginResponse = await axios.post("http://localhost:4000/login", {
-        //             email: email,
-        //             password: password
-        //         })
+        if (CheckInputs()) {
+                const newUser={
+                    name: name,
+                    email: email,
+                    password: password,
+                }
+                Swal.fire({
+                    title: "Please Wait",
+                    text: "Regetering",
+                    backdrop: "true",
+                    position: "center",
+                    allowOutsideClick: false,
+                })
+                Swal.showLoading()
+                const registerResponse = await axios.post("http://localhost:4000/register",newUser)
+                    .then(res => {
+                        Swal.close()
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'User Added Successfully'
+                        })
+                        ClearForm()
+                        navigate('/') //going to login page
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        Swal.fire({
+                            icon: 'error',
+                            title: err.response.data.message
+                        })
+                    })
 
-        //         localStorage.setItem("token", loginResponse.data.token);
-
-        //         try {
-
-        //             const res = await axios.get("http://localhost:4000/login/isUserAuth", {
-        //                 headers: {
-        //                     "x-access-token": localStorage.getItem("token"),
-                           
-        //                 }
-        //             })
-
-                   
-        //                 navigate('/root')
-                    
-
-        //         }
-        //         catch (err) {
-        //             Swal.fire({
-        //                 icon: 'error',
-        //                 title: err.response.data.message
-        //             })
-        //         }
-        //     }
-        //     catch (err) {
-        //         Swal.fire({
-        //             icon: 'error',
-        //             title: err.response.data.message
-        //         })
-            // }
-        // }
+            }
 
     };
 
