@@ -13,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true }));
 
-mongoose.connect(env.process.MONGODB_URI, {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true
 });
 
@@ -31,6 +31,6 @@ db.on('error', (error) => {
 app.use("/login", loginRoute);
 app.use("/register", registerRoute);
 
-app.listen(PORT, function() {
+app.listen(process.env.PORT, function() {
     console.log("Server is running on Port: " + process.env.PORT);
 });
