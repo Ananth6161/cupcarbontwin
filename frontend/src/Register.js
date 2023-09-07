@@ -31,7 +31,7 @@ const Register = () => {
     const [name, setName] =useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    
+    const navigate = useNavigate();
     const [values, setValues] = useState({
         amount: '',
         password: '',
@@ -41,7 +41,7 @@ const Register = () => {
     });
 
     const onChangeName = (event) =>{
-        setName(event.target.name);
+        setName(event.target.value);
     }
     const onChangeEmail = (event) => {
         setEmail(event.target.value);
@@ -119,7 +119,7 @@ const Register = () => {
                             icon: 'success',
                             title: 'User Added Successfully'
                         })
-                        ClearForm()
+                        // ClearForm()
                         navigate('/') //going to login page
                     })
                     .catch(err => {
@@ -192,7 +192,7 @@ const Register = () => {
                                 }}
                                 variant="outlined"
                                 value={name}
-                                onChange={(event) => { setEmail(event.target.value) }}
+                                onChange={(event) => { setName(event.target.value) }}
                             />
                         </div>
 
