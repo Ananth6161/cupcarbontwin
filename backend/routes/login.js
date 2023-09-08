@@ -26,15 +26,17 @@ const verifyJWT = require("../middleware/verifyJWT");
 router.post("/", async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
+    console.log("You have successfully logged in back");
     if (email && password) {
             const user = await User.findOne({ email: email })
+            // console.log(user.name);
             if (!user) {
                 return res.status(401).json({
                     message: "No Account exists with the given credentials"
                 })
             }
-
-            const isMatch = await bcrypt.compare(req.body.password, user.password)
+            console.log(password);
+            const isMatch = await bcrypt.compare(password, user.password)
             if (!isMatch) {
                 return res.status(401).json({
                     message: "Invalid Credentials"

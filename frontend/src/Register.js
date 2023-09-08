@@ -115,12 +115,21 @@ const Register = () => {
                 const registerResponse = await axios.post("http://localhost:4000/register",newUser)
                     .then(res => {
                         Swal.close()
+                        console.log(res);
+                        if(res.data.message=="user already exist"){
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'User with this email-id already exists'
+                            })
+                        }
+                        else{
                         Swal.fire({
                             icon: 'success',
                             title: 'User Added Successfully'
                         })
                         // ClearForm()
                         navigate('/') //going to login page
+                    }
                     })
                     .catch(err => {
                         console.log(err)

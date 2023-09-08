@@ -87,43 +87,45 @@ const Login = () => {
 
         event.preventDefault();
         console.log("You have successfully logged in");
-        // if (CheckInputs()) {
-        //     try {
-        //         const loginResponse = await axios.post("http://localhost:4000/login", {
-        //             email: email,
-        //             password: password
-        //         })
+        // navigate('/map');
+        if (CheckInputs()) {
+            try {
+                const loginResponse = await axios.post("http://localhost:4000/login", {
+                    email: email,
+                    password: password
+                })
+                console.log("At Login frontend");
+                console.log(loginResponse.data.token);
+                localStorage.setItem("token", loginResponse.data.token);
 
-        //         localStorage.setItem("token", loginResponse.data.token);
+                try {
 
-        //         try {
-
-        //             const res = await axios.get("http://localhost:4000/login/isUserAuth", {
-        //                 headers: {
-        //                     "x-access-token": localStorage.getItem("token"),
+                    const res = await axios.get("http://localhost:4000/login/isUserAuth", {
+                        headers: {
+                            "x-access-token": localStorage.getItem("token"),
                            
-        //                 }
-        //             })
+                        }
+                    })
 
                    
-        //                 navigate('/root')
+                        navigate('/map')
                     
 
-        //         }
-        //         catch (err) {
-        //             Swal.fire({
-        //                 icon: 'error',
-        //                 title: err.response.data.message
-        //             })
-        //         }
-        //     }
-        //     catch (err) {
-        //         Swal.fire({
-        //             icon: 'error',
-        //             title: err.response.data.message
-        //         })
-            // }
-        // }
+                }
+                catch (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: err.response.data.message
+                    })
+                }
+            }
+            catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: err.response.data.message
+                })
+            }
+        }
 
     };
 
