@@ -1,23 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-// import { Icon } from 'leaflet';
-
-// const customIcon = new Icon({
-//   iconUrl: 'icon.png',
-//   // iconSize: [32, 32], // Adjust the size of the icon as needed
-//   // iconAnchor: [16, 32], // Position the icon anchor point (usually at the bottom center)
-//   // popupAnchor: [0, -32], // Position the popup anchor point (above the icon)
-// });
-
-//import { useNavigate } from 'react-router-dom';
+import markerIconPng from "leaflet/dist/images/marker-icon.png";
+import {Icon} from 'leaflet';
+//import { Client } from '@elastic/elasticsearch';
 
 const IIITHLocation = () => {
   const [markers, setMarkers] = useState([]);
   const [isAddingMarker, setIsAddingMarker] = useState(false);
   const [newMarkerPosition, setNewMarkerPosition] = useState(null);
-  
+  // useEffect(() => {
+  //   // Initialize Elasticsearch client
+  //   const elasticClient = new Client({ 
+  //     node: process.env.ELASTICSEARCH_URL,
+  //     auth:{
+  //         username: process.env.USERNAME, // Replace with your Elasticsearch username
+  //         password: process.env.PASSWORD, // Replace with your Elasticsearch password
+  //     }, }); // Adjust the Elasticsearch server URL as needed
 
+  //   // Define your Elasticsearch query to fetch data
+  //   const query = {
+  //     index: 'sensorsamplefinal', // Replace with your Elasticsearch index name
+  //     body: {
+  //       query: {
+  //         // Your Elasticsearch query here
+  //         // Example: match_all to fetch all documents
+  //         match_all: {},
+  //       },
+  //     },
+  //   };
+
+  //   // Fetch data from Elasticsearch
+  //   elasticClient
+  //       .search(query)
+  //       .then((response) => {
+  //           const hits = response.body.hits.hits;
+  //           const data = hits.map((hit) => {
+  //               const coordinates = hit._source.Coordinates; // Assuming 'Coordinates' is in the format "lat,lon"
+  //               const [lat, lon] = coordinates.split(',').map(parseFloat);
+  //               return {
+  //                   id: hit._id,
+  //                   position: [lat, lon], // Store position as an array
+  //                   name: hit._source.node_id,
+  //                   // Add more properties as needed
+  //               };
+  //           });
+  //           setMarkers(data);
+  //       })
+  //       .catch((error) => {
+  //           console.error('Error fetching data from Elasticsearch:', error);
+  //       });
+  // }, []);
   const addMarker = () => {
     // Generate a unique ID for the new marker
     const markerId = markers.length + 1;
@@ -52,7 +85,7 @@ const IIITHLocation = () => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         {markers.map((marker) => (
-          <Marker key={marker.id} position={marker.position} draggable={true} eventHandlers={{
+          <Marker key={marker.id} position={marker.position} draggable={true} icon={new Icon({iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41]})} eventHandlers={{
             dragend: (e) => {
               // Handle marker drag and update its position
               const updatedMarkers = markers.map((m) =>
@@ -84,36 +117,3 @@ const IIITHLocation = () => {
 };
 
 export default IIITHLocation;
-
-// src/components/IIITHLocation.js
-// import React from 'react';
-// import "leaflet/dist/leaflet.css";
-// import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-// import { useNavigate } from 'react-router-dom';
-
-// const IIITHLocation = () => {
-//   const iiithCoordinates = [17.4474, 78.3491]; // IIITH coordinates in Gachibowli
-//   const navigate = useNavigate(); // Initialize the useNavigate hook
-
-// //   const handleMarkerClick = () => {
-// //     // Use navigate to navigate to the dashboard route
-// //     navigate('/dashboard');
-// //   };
-//   return (
-//     <MapContainer center={iiithCoordinates} zoom={40} style={{ height: '1000px', width: '100%' }}>
-//       <TileLayer
-//         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-//       />
-//       <Marker position={[17.444,78.347]} eventHandlers={{
-//          click: (e) => {
-//            navigate('/dashboard');
-//          },
-//         }}>
-//         <Popup>Click to go to dashboard</Popup>
-//       </Marker>
-//     </MapContainer>
-//   );
-// };
-
-// export default IIITHLocation;
