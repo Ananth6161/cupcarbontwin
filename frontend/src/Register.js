@@ -116,7 +116,13 @@ const Register = () => {
                     .then(res => {
                         Swal.close()
                         console.log(res);
-                        if(res.data.message=="user already exist"){
+                        if(res.data.message=="Not a Valid Email"){
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Email-ID is Not Valid'
+                            })
+                        }
+                        else if(res.data.message=="user already exist"){
                             Swal.fire({
                                 icon: 'error',
                                 title: 'User with this email-id already exists'
