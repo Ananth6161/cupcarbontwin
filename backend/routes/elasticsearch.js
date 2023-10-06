@@ -1,15 +1,40 @@
 const express = require("express");
 require("dotenv").config();
 
+const { Client } = require('@elastic/elasticsearch')
+const client = new Client({
+  node: process.env.ELASTICCLOUD_URL,
+    auth: {
+      apiKey: process.env.ELASTICCLOUD_APIKEY
+    }
+})
+
 const router = express.Router();
-const { Client } = require("@elastic/elasticsearch"); // Elasticsearch client library
+//const  elasticClient  = require("../middleware/elasticsearch-client");
 
-// Create an Elasticsearch client
-const elasticClient = new Client({ 
-    node: process.env.ELASTICSEARCH_URL,
-    auth:{
-        username: process.env.USERNAME, // Replace with your Elasticsearch username
-        password: process.env.PASSWORD, // Replace with your Elasticsearch password
-    }, }); // Adjust the Elasticsearch server URL as needed
-
+//console.log("Connected to Elasticsearch: ", elasticClient);
+    router.get("/sensorsamplefinals/_search", async (req, res) => {
+      try {
+        // Define your Elasticsearch query to fetch data
+        const query = {
+          index: 'sensordata', // Replace with your Elasticsearch index name
+          body: {
+            "query": {
+              "match_all": {},
+            },
+          },
+        };
+    
+        // Perform an Elasticsearch query using the defined query
+        const response = await client.search(query);
+        console.log(response);
+        
+        res.json(response);
+      } catch (error) {
+        console.error("Elasticsearch Error:", error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while querying Elasticsearch." });
+      }
+    });
 module.exports = router;

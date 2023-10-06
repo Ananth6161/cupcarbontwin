@@ -3,54 +3,48 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import {Icon} from 'leaflet';
+import axios from "axios";
 //import { Client } from '@elastic/elasticsearch';
 
 const IIITHLocation = () => {
   const [markers, setMarkers] = useState([]);
   const [isAddingMarker, setIsAddingMarker] = useState(false);
   const [newMarkerPosition, setNewMarkerPosition] = useState(null);
-  // useEffect(() => {
-  //   // Initialize Elasticsearch client
-  //   const elasticClient = new Client({ 
-  //     node: process.env.ELASTICSEARCH_URL,
-  //     auth:{
-  //         username: process.env.USERNAME, // Replace with your Elasticsearch username
-  //         password: process.env.PASSWORD, // Replace with your Elasticsearch password
-  //     }, }); // Adjust the Elasticsearch server URL as needed
+  useEffect( () => {
+    //   // Define your Elasticsearch query to fetch data
+    
+    const query = {
+      index: 'sensordata', // Replace with your Elasticsearch index name
+      body: {
+        "query": {
+          "match_all": {},
+        },
+      },
+    };
+    
+      
+    axios.get('http://localhost:4000/elasticsearch/sensorsamplefinals/_search', query)
 
-  //   // Define your Elasticsearch query to fetch data
-  //   const query = {
-  //     index: 'sensorsamplefinal', // Replace with your Elasticsearch index name
-  //     body: {
-  //       query: {
-  //         // Your Elasticsearch query here
-  //         // Example: match_all to fetch all documents
-  //         match_all: {},
-  //       },
-  //     },
-  //   };
-
-  //   // Fetch data from Elasticsearch
-  //   elasticClient
-  //       .search(query)
-  //       .then((response) => {
-  //           const hits = response.body.hits.hits;
-  //           const data = hits.map((hit) => {
-  //               const coordinates = hit._source.Coordinates; // Assuming 'Coordinates' is in the format "lat,lon"
-  //               const [lat, lon] = coordinates.split(',').map(parseFloat);
-  //               return {
-  //                   id: hit._id,
-  //                   position: [lat, lon], // Store position as an array
-  //                   name: hit._source.node_id,
-  //                   // Add more properties as needed
-  //               };
-  //           });
-  //           setMarkers(data);
-  //       })
-  //       .catch((error) => {
-  //           console.error('Error fetching data from Elasticsearch:', error);
-  //       });
-  // }, []);
+    .then((response) => {
+      const hits = response.data.hits.hits; // Access the hits array within the response
+      console.log('Elasticsearch data:', hits);
+      const data = hits.map((hit) => {
+        const coordinates = hit._source.Coordinates; // Assuming 'Coordinates' is in the format "lat,lon"
+        const [lat, lon] = coordinates.split(',').map(parseFloat);
+        return {
+          id: hit._id,
+          position: [lat, lon], // Store position as an array
+          // Add more properties as needed
+        };
+      });
+      setMarkers(data);
+      console.log(data)
+      console.log(markers)
+    })
+    .catch((error) => {
+      console.error('Error fetching data from Elasticsearch:', error);
+    });
+  }, []);
   const addMarker = () => {
     // Generate a unique ID for the new marker
     const markerId = markers.length + 1;
@@ -75,11 +69,11 @@ const IIITHLocation = () => {
       setIsAddingMarker(false);
     }
   };
-  console.log(markers);
+  
   return (
     <div>
       <button onClick={addMarker}>Add Marker</button>
-      <MapContainer center={[17.4474, 78.3491]} zoom={13} style={{ height: '1000px', width: '100%' }} onClick={handleMapClick}>
+      <MapContainer center={[17.4474, 78.3491]} zoom={18} style={{ height: '1000px', width: '100%' }} onClick={handleMapClick}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
