@@ -33,34 +33,46 @@ require("dotenv").config();
 
 // // Initialize the Elasticsearch client
 
-const initializeElasticsearchClient = async () => {
-  const elasticClient = new Client({
-    node: process.env.ELASTICCLOUD_URL,
-    auth: {
-      apiKey: process.env.ELASTICCLOUD_APIKEY
-    }
-  });
+// const initializeElasticsearchClient = async () => {
+//   const elasticClient = new Client({
+//     node: process.env.ELASTICCLOUD_URL,
+//     auth: {
+//       apiKey: process.env.ELASTICCLOUD_APIKEY
+//     }
+//   });
 
-  try {
-    const resp = await elasticClient.info();
-    console.log(resp);
-    return elasticClient;
-  } catch (error) {
-    console.error("Error initializing Elasticsearch client:", error);
-    throw error;
-  }
-};
-
-// const query = {
-//   index: 'sensordata', // Replace with your Elasticsearch index name
-//   body: {
-//     "query": {
-//       "match_all": {},
-//     },
-//   },
+//   try {
+//     const resp = await elasticClient.info();
+//     console.log(resp);
+//     return elasticClient;
+//   } catch (error) {
+//     console.error("Error initializing Elasticsearch client:", error);
+//     throw error;
+//   }
 // };
 
+// // const query = {
+// //   index: 'sensordata', // Replace with your Elasticsearch index name
+// //   body: {
+// //     "query": {
+// //       "match_all": {},
+// //     },
+// //   },
+// // };
 
-//console.log(initializeElasticsearchClient().search(query));
 
-module.exports = initializeElasticsearchClient();
+// //console.log(initializeElasticsearchClient().search(query));
+
+// module.exports = initializeElasticsearchClient();
+
+const elasticClient = new Client({
+  cloud: {
+    id: process.env.ELASTICCLOUD_ID,
+  },
+  auth : {
+    username: process.env.ELASTICCLOUD_USERNAME,
+    password: process.env.ELASTICCLOUD_PASSWORD,
+  },
+});
+
+module.exports = elasticClient;

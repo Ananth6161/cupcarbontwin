@@ -4,12 +4,13 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import {Icon} from 'leaflet';
 import axios from "axios";
-//import { Client } from '@elastic/elasticsearch';
+import SensorPopup from './SensorPopup';
 
 const IIITHLocation = () => {
   const [markers, setMarkers] = useState([]);
   const [isAddingMarker, setIsAddingMarker] = useState(false);
   const [newMarkerPosition, setNewMarkerPosition] = useState(null);
+  const [selectedSensor, setSelectedSensor] = useState(null);
   useEffect( () => {
     //   // Define your Elasticsearch query to fetch data
     
@@ -23,22 +24,24 @@ const IIITHLocation = () => {
     };
     
       
-    axios.get('http://localhost:4000/elasticsearch/sensorsamplefinals/_search', query)
+    axios.get('http://localhost:4000/latestdata', query)
 
     .then((response) => {
-      const hits = response.data.hits.hits; // Access the hits array within the response
-      console.log('Elasticsearch data:', hits);
-      const data = hits.map((hit) => {
-        const coordinates = hit._source.Coordinates; // Assuming 'Coordinates' is in the format "lat,lon"
+      //const hits = response.data.hits.hits; // Access the hits array within the response
+      //console.log('Elasticsearch data:', hits);
+      const data = response.data; // Access the data property of the Axios response
+      console.log(data[0]);
+      const markersData = data.map((hit) => {
+        const coordinates = hit.latest_data.Coordinates; // Assuming 'Coordinates' is in the format "lat,lon"
         const [lat, lon] = coordinates.split(',').map(parseFloat);
         return {
-          id: hit._id,
+          id: hit.sensor_id,
           position: [lat, lon], // Store position as an array
-          // Add more properties as needed
+          data: hit.latest_data.data,
         };
       });
-      setMarkers(data);
-      console.log(data)
+      setMarkers(markersData);
+      console.log(markersData)
       console.log(markers)
     })
     .catch((error) => {
@@ -51,8 +54,10 @@ const IIITHLocation = () => {
   
     // Create a new marker object with an initial position
     const newMarker = {
+      //timestamp: "2021-05-01T00:00:00.000Z",
       id: markerId,
       position: [17.4474, 78.3491], // Initial position, you can change this
+      data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     };
   
     // Add the new marker to the markers array
@@ -62,12 +67,19 @@ const IIITHLocation = () => {
     setIsAddingMarker(true);
   };
   
-
   const handleMapClick = (e) => {
     if (isAddingMarker) {
       setNewMarkerPosition(e.latlng);
       setIsAddingMarker(false);
     }
+    else {
+
+    }
+  };
+
+  const handleMarkerClick = (sensor) => {
+    console.log("Marker clicked:", sensor); // Add this line
+    setSelectedSensor(sensor);
   };
   
   return (
@@ -78,19 +90,30 @@ const IIITHLocation = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        {markers.map((marker) => (
-          <Marker key={marker.id} position={marker.position} draggable={true} icon={new Icon({iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41]})} eventHandlers={{
-            dragend: (e) => {
-              // Handle marker drag and update its position
-              const updatedMarkers = markers.map((m) =>
-                m.id === marker.id ? { ...m, position: e.target.getLatLng() } : m
-              );
-              setMarkers(updatedMarkers);
-            },
-          }}>
-            {/* <Popup>Marker</Popup> */}
+        {markers.map((marker) => {
+          console.log("Rendering marker:", marker); // Add this line
+          return (
+            <Marker 
+              key={marker.id} 
+              position={marker.position} 
+              draggable={true} 
+              icon={new Icon({iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41]})}
+              onClick={() => handleMarkerClick(marker)} 
+            >
+              <Popup>
+                <SensorPopup sensor={marker} />
+              </Popup>
+            </Marker>
+          );
+        })}
+
+        {selectedSensor && (
+          <Marker position={selectedSensor.position}>
+            <Popup>
+              <SensorPopup sensor={selectedSensor} />
+            </Popup>
           </Marker>
-        ))}
+        )}
         {isAddingMarker && newMarkerPosition && (
           <Marker
             position={newMarkerPosition}

@@ -3,11 +3,14 @@ const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-//const { Client } = require("@elastic/elasticsearch");
 require("dotenv").config();
+
+const  elasticClient  = require("./middleware/elasticsearch-client");
+console.log("Connected to Elasticsearch: ", elasticClient);
 
 var loginRoute = require("./routes/login");
 var registerRoute = require("./routes/register");
+var latestdataRoute = require("./routes/data");
 var elasticsearchRoute = require("./routes/elasticsearch");
 
 app.use(cors());
@@ -54,7 +57,7 @@ db.on('error', (error) => {
 app.use("/login", loginRoute);
 app.use("/register", registerRoute);
 app.use("/elasticsearch", elasticsearchRoute);
-
+app.use("/latestdata", latestdataRoute);
 app.listen(process.env.PORT, function() {
     console.log("Server is running on Port: " + process.env.PORT);
 });
