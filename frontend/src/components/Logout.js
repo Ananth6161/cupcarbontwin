@@ -1,19 +1,15 @@
-// Logout.js
 import React from 'react';
-import { useHistory } from 'react-router';
-
-// Rest of your code...
-
+import { useNavigate } from 'react-router-dom';
 
 function Logout() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     // Implement the logout functionality here (clear user data, tokens, etc.)
     // Redirect the user to the login page
     // For example, you can use localStorage or a state management tool like Redux
     localStorage.removeItem('authToken'); // Example: remove authentication token
-    history.push('/'); // Redirect to the login page
+    navigate('/'); // Redirect to the login page
   };
 
   return (
