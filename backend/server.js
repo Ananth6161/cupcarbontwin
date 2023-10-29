@@ -4,6 +4,13 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 require("dotenv").config();
+const session = require('express-session');
+
+app.use(session({
+  secret: process.env.JWT_SECRET, // Change this to a secure secret key
+  resave: false,
+  saveUninitialized: true,
+}));
 
 const  elasticClient  = require("./middleware/elasticsearch-client");
 console.log("Connected to Elasticsearch: ", elasticClient);
@@ -12,6 +19,7 @@ var loginRoute = require("./routes/login");
 var registerRoute = require("./routes/register");
 var latestdataRoute = require("./routes/nodes/data");
 var elasticsearchRoute = require("./routes/elasticsearch");
+var userinforoute = require("./routes/userinfo")
 
 app.use(cors());
 app.use(bodyParser.json({limit: '50mb'}));
@@ -58,6 +66,7 @@ app.use("/login", loginRoute);
 app.use("/register", registerRoute);
 app.use("/elasticsearch", elasticsearchRoute);
 app.use("/latestdata", latestdataRoute);
+app.use("/userinfo", userinforoute)
 app.listen(process.env.PORT, function() {
     console.log("Server is running on Port: " + process.env.PORT);
 });
