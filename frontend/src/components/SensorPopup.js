@@ -13,13 +13,17 @@ const SensorPopup = ({ sensor }) => {
       <div>
         <strong>Data:</strong>
         <ul>
-          {sensor.data.map((dataObject, index) => (
-            <li key={index}>
-              {/* Render each property of the data object */}
-              Label: {dataObject.label}, Value: {dataObject.value} 
-              {/* Add more properties as needed */}
-            </li>
-          ))}
+          {Object.keys(sensor).map((key, index) => {
+            // Check if the property starts with 'value' before rendering it
+            if (key.startsWith('value')) {
+              return (
+                <li key={index}>
+                  Label: {key}, Value: {sensor[key]}
+                </li>
+              );
+            }
+            return null;
+          })}
         </ul>
       </div>
     </div>

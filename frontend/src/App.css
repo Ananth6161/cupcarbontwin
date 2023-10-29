@@ -36,3 +36,35 @@
     transform: rotate(360deg);
   }
 }
+
+/* Modify the CSS in your App.css file */
+
+.navbar {
+  background-color: #000; /* Change background color to black */
+  color: #fff; /* Set text color to white */
+  padding: 10px;
+  text-align: center;
+}
+
+.navbar-list {
+  list-style: none;
+  padding: 0;
+}
+
+.navbar-item {
+  display: inline-block;
+  margin-right: 20px;
+  transition: color 0.3s; /* Smooth color transition */
+  background: #000; /* Set background color to black */
+}
+
+.navbar-item a {
+  color: #fff; /* Set text color to white for links */
+  text-decoration: none; /* Remove underlines from links */
+}
+
+.navbar-item:hover {
+  color: #00f; /* Change text color on hover to blue */
+  cursor: pointer;
+}
+
