@@ -4,25 +4,33 @@ import Logout from './Logout'; // Import the Logout component
 
 function Navbar() {
   const [authenticated, setAuthenticated] = useState(false); // Initialize with false for unauthenticated state
+  const [showDropdown, setShowDropdown] = useState(false); // To control the visibility of the dropdown
 
-  // You would typically set the `authenticated` state when the user logs in
-  // and clear it when the user logs out, or use a state management solution
+  // Toggle the dropdown visibility
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
 
   return (
-    <nav className="navbar">
-      <ul className="navbar-list">
-        <li className="navbar-item"><Link to="/">Home</Link></li>
+    <nav style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', backgroundColor: '#333', padding: '10px 20px', position: 'relative', zIndex: 1 }}>
+      <div className="navbar-toggle" style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }} onClick={toggleDropdown}>
+        <div style={{ width: '20px', height: '2px', backgroundColor: '#fff', margin: '3px 0' }}></div>
+        <div style={{ width: '20px', height: '2px', backgroundColor: '#fff', margin: '3px 0' }}></div>
+        <div style={{ width: '20px', height: '2px', backgroundColor: '#fff', margin: '3px 0' }}></div>
+      </div>
+      <ul style={{ display: showDropdown ? 'flex' : 'none', flexDirection: 'column', position: 'absolute', top: '50px', right: 0, backgroundColor: '#333', border: '1px solid #777', padding: '10px' }}>
         {authenticated ? (
-          <>
-            <li className="navbar-item"><Link to="/map">View</Link></li>
-            <li className="navbar-item"><Logout /></li>
-          </>
+          <li style={{ marginBottom: '10px' }}>
+            <Link to="/map" style={{ color: '#fff' }}>View</Link>
+          </li>
         ) : (
-          <>
-            <li className="navbar-item"><Link to="/register">Register</Link></li>
-            <li className="navbar-item"><Link to="/login">Login</Link></li>
-          </>
+          <li style={{ marginBottom: '10px' }}>
+            <Link to="/register" style={{ color: '#fff' }}>Register</Link>
+          </li>
         )}
+        <li style={{ marginBottom: '10px' }}>
+          {authenticated ? <Logout /> : <Link to="/login" style={{ color: '#fff' }}>Login</Link>}
+        </li>
       </ul>
     </nav>
   );
