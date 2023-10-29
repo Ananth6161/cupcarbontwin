@@ -6,10 +6,12 @@ import Login from './Login.js';
 import Logout from './Logout.js';
 import SimulationPage from './components/simulation';
 import IIITHLocation from './components/IIITHLocation';
+import Navbar from './components/Navbar';
 
 function App() {
   return (
     <Router>
+      <Navbar /> {}
       <Routes>
         <Route exact path="/" element={<Login />} />
         <Route exact path="/register" element={<Register />} />
@@ -20,5 +22,6 @@ function App() {
     </Router>
   );
 }
+
 
 export default App;

@@ -21,6 +21,11 @@ var latestdataRoute = require("./routes/nodes/data");
 var elasticsearchRoute = require("./routes/elasticsearch");
 var userinforoute = require("./routes/userinfo")
 
+// In server.js
+const logoutRoute = require('./routes/logout');
+
+
+
 app.use(cors());
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true }));
@@ -67,6 +72,7 @@ app.use("/register", registerRoute);
 app.use("/elasticsearch", elasticsearchRoute);
 app.use("/latestdata", latestdataRoute);
 app.use("/userinfo", userinforoute)
+app.use('/logout', logoutRoute);
 app.listen(process.env.PORT, function() {
     console.log("Server is running on Port: " + process.env.PORT);
 });
