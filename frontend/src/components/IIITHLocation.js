@@ -8,14 +8,14 @@ import SensorPopup from './SensorPopup';
 
 const IIITHLocation = () => {
   const [markers, setMarkers] = useState([]);
-  const [isAddingMarker, setIsAddingMarker] = useState(false);
-  const [newMarkerPosition, setNewMarkerPosition] = useState(null);
+  // const [isAddingMarker, setIsAddingMarker] = useState(false);
+  // const [newMarkerPosition, setNewMarkerPosition] = useState(null);
   const [selectedSensor, setSelectedSensor] = useState(null);
   useEffect( () => {
     //   // Define your Elasticsearch query to fetch data
     
     const query = {
-      index: 'sensordata', // Replace with your Elasticsearch index name
+      index: 'tempdata2', // Replace with your Elasticsearch index name
       body: {
         "query": {
           "match_all": {},
@@ -37,45 +37,56 @@ const IIITHLocation = () => {
         return {
           id: hit.sensor_id,
           position: [lat, lon], // Store position as an array
-          data: hit.latest_data.data,
+          value1: hit.latest_data.value1,
+          value2: hit.latest_data.value2,
+          value3: hit.latest_data.value3,
+          value4: hit.latest_data.value4,
+          value5: hit.latest_data.value5,
+          value6: hit.latest_data.value6,
         };
       });
       setMarkers(markersData);
       console.log(markersData)
       console.log(markers)
+      return false;
     })
     .catch((error) => {
       console.error('Error fetching data from Elasticsearch:', error);
     });
   }, []);
-  const addMarker = () => {
-    // Generate a unique ID for the new marker
-    const markerId = markers.length + 1;
+  // const addMarker = () => {
+  //   // Generate a unique ID for the new marker
+  //   const markerId = markers.length + 1;
   
-    // Create a new marker object with an initial position
-    const newMarker = {
-      //timestamp: "2021-05-01T00:00:00.000Z",
-      id: markerId,
-      position: [17.4474, 78.3491], // Initial position, you can change this
-      data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    };
+  //   // Create a new marker object with an initial position
+  //   const newMarker = {
+  //     //timestamp: "2021-05-01T00:00:00.000Z",
+  //     id: markerId,
+  //     position: [17.4474, 78.3491], // Initial position, you can change this
+  //     value1: 0,
+  //     value2: 0,
+  //     value3: 0,
+  //     value4: 0,
+  //     value5: 0,
+  //     value6: 0
+  //   };
   
-    // Add the new marker to the markers array
-    setMarkers([...markers, newMarker]);
+  //   // Add the new marker to the markers array
+  //   setMarkers([...markers, newMarker]);
   
-    // Enable marker placement mode
-    setIsAddingMarker(true);
-  };
+  //   // Enable marker placement mode
+  //   setIsAddingMarker(true);
+  // };
   
-  const handleMapClick = (e) => {
-    if (isAddingMarker) {
-      setNewMarkerPosition(e.latlng);
-      setIsAddingMarker(false);
-    }
-    else {
+  // const handleMapClick = (e) => {
+  //   if (isAddingMarker) {
+  //     setNewMarkerPosition(e.latlng);
+  //     setIsAddingMarker(false);
+  //   }
+  //   else {
 
-    }
-  };
+  //   }
+  // };
 
   const handleMarkerClick = (sensor) => {
     console.log("Marker clicked:", sensor); // Add this line
@@ -84,8 +95,8 @@ const IIITHLocation = () => {
   
   return (
     <div>
-      <button onClick={addMarker}>Add Marker</button>
-      <MapContainer center={[17.4474, 78.3491]} zoom={18} style={{ height: '1000px', width: '100%' }} onClick={handleMapClick}>
+      {/* <button onClick={addMarker}>Add Marker</button> */}
+      <MapContainer center={[17.4474, 78.3491]} zoom={18} style={{ height: '1000px', width: '100%' }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -96,7 +107,7 @@ const IIITHLocation = () => {
             <Marker 
               key={marker.id} 
               position={marker.position} 
-              draggable={true} 
+              draggable={false} 
               icon={new Icon({iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41]})}
               onClick={() => handleMarkerClick(marker)} 
             >
@@ -114,7 +125,7 @@ const IIITHLocation = () => {
             </Popup>
           </Marker>
         )}
-        {isAddingMarker && newMarkerPosition && (
+        {/* {isAddingMarker && newMarkerPosition && (
           <Marker
             position={newMarkerPosition}
             draggable={true}
@@ -127,7 +138,8 @@ const IIITHLocation = () => {
           >
             <Popup>Drag and place this marker</Popup>
           </Marker>
-        )}
+          // datasimulation(markers[markers.length -1]);
+        )} */}
       </MapContainer>
     </div>
   );
