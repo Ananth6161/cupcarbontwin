@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const  elasticClient  = require("../middleware/elasticsearch-client");
+const  elasticClient  = require("../../middleware/elasticsearch-client");
 
 // Get all nodes
 router.get("/", async (req, res) => {
     try {
       const  body  = await elasticClient.search({
-        index: 'sensordata', // Replace with your Elasticsearch index name
+        index: 'tempdata2', // Replace with your Elasticsearch index name
         size: 0,
         body: {
           aggs: {
@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
                 latest_data: {
                   top_hits: {
                     size: 1, // Retrieve only the latest document for each sensor
-                    _source: ["timestamp", "node_id", "data", "Coordinates", "version"], // Specify the fields you want to retrieve
+                    _source: ["timestamp", "node_id", "value1", "value2", "value3", "value4", "value5", "value6", "Coordinates", "version"], // Specify the fields you want to retrieve
                     sort: [
                       {
                         timestamp: { order: "desc" }, // Sort by timestamp in descending order

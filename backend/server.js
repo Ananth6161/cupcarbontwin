@@ -10,7 +10,7 @@ console.log("Connected to Elasticsearch: ", elasticClient);
 
 var loginRoute = require("./routes/login");
 var registerRoute = require("./routes/register");
-var latestdataRoute = require("./routes/data");
+var latestdataRoute = require("./routes/nodes/data");
 var elasticsearchRoute = require("./routes/elasticsearch");
 
 // In server.js
