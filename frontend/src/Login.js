@@ -86,18 +86,13 @@ const Login = () => {
     const onSubmit = async (event) => {
 
         event.preventDefault();
-        console.log("You have successfully logged in");
         // navigate('/map');
         if (CheckInputs()) {
-            console.log("You have successfully logged in");
             try {
-                console.log("You have successfully logged in");
                 const loginResponse = await axios.post("http://localhost:4000/login", {
                     email: email,
                     password: password
                 })
-                console.log("At Login frontend");
-                console.log(loginResponse.data.token);
                 localStorage.setItem("token", loginResponse.data.token);
 
                 try {
@@ -122,7 +117,6 @@ const Login = () => {
                 }
             }
             catch (err) {
-                console.log("You have successfully logged in");
                 Swal.fire({
                     icon: 'error',
                     title: err.response.data.message

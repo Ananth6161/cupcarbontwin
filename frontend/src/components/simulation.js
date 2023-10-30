@@ -18,9 +18,9 @@ const SimulationPage = () => {
     if (jwtToken) {
       // Set the headers for the Axios request with the JWT token
       // Fetch user schema to get available index names
-      axios.get('http://localhost:4000/userinfo', {
+      axios.get('http://localhost:4000/login/isUserAuth', {
             headers: {
-                "x-access-token": localStorage.getItem("token"),
+                "x-access-token": jwtToken,
             }
         })
         .then((response) => {
