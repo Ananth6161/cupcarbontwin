@@ -22,9 +22,9 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
-    // indexes: {
-    //     type: [String]
-    // },
+    indexes: {
+        type: [String]
+    }
     // role: {
     //     type: String,
     //     enum: Object.values(ROLES),
