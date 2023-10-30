@@ -1,51 +1,27 @@
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const { MongoClient } = require('mongodb'); // Import MongoDB module
+var express = require("express");
+var router = express.Router();
 require('dotenv').config();
-const jwt = require('jsonwebtoken'); // Import JWT module
-// Add your /latestdata route
+const User = require('../models/user');
+const verifyJWT = require("../middleware/verifyJWT");
 
-app.get('/', (req, res) => {
-  const token = req.header('Authorization');
-
-  if (!token) {
-    return res.status(401).send('Access denied. No token provided.');
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Establish a connection to MongoDB Atlas
-    const uri = process.env.MONGODB_URI;
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    client.connect((err) => {
-      if (err) {
-        return res.status(500).send('Database connection error');
+router.get('/', verifyJWT, (req, res) => {
+  // Use the userId to retrieve the user's data from the database using promises
+  User.findById(req.userId)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
       }
-
-      const collection = client.db(process.env.DB_NAME).collection(process.env.COLLECTION_NAME);
-
-      // Find the user by email and return their data
-      collection.findOne({ email: decoded.email }, (err, user) => {
-        if (err) {
-          return res.status(500).send('Error retrieving user data');
-        }
-
-        if (user) {
-          res.json(user);
-        } else {
-          res.status(404).send('User not found');
-        }
-
-        client.close(); // Close the MongoDB connection
-      });
+      
+      // Respond with the user's data
+      res.status(200).json(user);
+      console.log(user);
+    })
+    .catch((err) => {
+      console.error('Error:', err);
+      res.status(500).json({ message: 'Internal server error' });
     });
-  } catch (err) {
-    res.status(401).send('Invalid token');
-  }
 });
 
+
+
+module.exports = router;

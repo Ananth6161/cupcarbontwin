@@ -23,7 +23,6 @@ const IIITHLocation = () => {
       },
     };
     
-      
     axios.get('http://localhost:4000/latestdata', query)
 
     .then((response) => {

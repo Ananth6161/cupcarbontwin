@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { fetchToken } from './getToken';
+
 
 const SimulationPage = () => {
   const [userSchema, setUserSchema] = useState(null);
@@ -10,7 +10,19 @@ const SimulationPage = () => {
   const [formData, setFormData] = useState({/* Your form data here */});
 
   useEffect(() => {
-      axios.get('http://localhost:4000/userinfo')
+    // Obtain the JWT token from localStorage
+    const jwtToken = localStorage.getItem('token'); // Retrieve the token from localStorage
+  
+    // Check if the token exists before making the request
+    
+    if (jwtToken) {
+      // Set the headers for the Axios request with the JWT token
+      // Fetch user schema to get available index names
+      axios.get('http://localhost:4000/userinfo', {
+            headers: {
+                "x-access-token": localStorage.getItem("token"),
+            }
+        })
         .then((response) => {
           setUserSchema(response.data);
           setAvailableIndexes(response.data.indexes);
@@ -18,7 +30,12 @@ const SimulationPage = () => {
         .catch((error) => {
           console.error('Error fetching user schema:', error);
         });
-    }, []);
+    } else {
+      // Handle the case where the token is not available in localStorage
+      console.error('JWT token not found in localStorage');
+    }
+  }, []);
+  
     
   const handleChoiceChange = (e) => {
     setChoice(e.target.value);
