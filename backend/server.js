@@ -12,6 +12,7 @@ var loginRoute = require("./routes/login");
 var registerRoute = require("./routes/register");
 var latestdataRoute = require("./routes/nodes/data");
 var elasticsearchRoute = require("./routes/elasticsearch");
+var userinforoute = require("./routes/userinfo")
 
 // In server.js
 const logoutRoute = require('./routes/logout');
@@ -63,6 +64,7 @@ app.use("/login", loginRoute);
 app.use("/register", registerRoute);
 app.use("/elasticsearch", elasticsearchRoute);
 app.use("/latestdata", latestdataRoute);
+app.use("/userinfo", userinforoute)
 app.use('/logout', logoutRoute);
 app.listen(process.env.PORT, function() {
     console.log("Server is running on Port: " + process.env.PORT);

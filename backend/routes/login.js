@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
                     message: "No Account exists with the given credentials"
                 })
             }
-            console.log(password);
+            //console.log(password);
             const isMatch = await bcrypt.compare(password, user.password)
             if (!isMatch) {
                 return res.status(401).json({
@@ -62,6 +62,7 @@ router.post("/", async (req, res) => {
                     })
                 }
             )
+
     } else {
         res.json({
             success: false,
