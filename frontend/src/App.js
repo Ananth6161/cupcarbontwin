@@ -21,7 +21,7 @@ const Layout = () => {
     </div>
   );
 };
-
+import Dashboard from './components/VisualizationDashboard';
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -39,6 +39,7 @@ function App() {
             </Route>
             <Route exact path="/register" element={<Register />} />
             <Route path="/logout" element={<Logout />} />
+        <Route exact path="/dashboard" element={<Dashboard />} />
           </Routes>
         </Router>
         

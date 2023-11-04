@@ -102,8 +102,6 @@ const Login = () => {
                     email: email,
                     password: password
                 })
-                console.log("At Login frontend");
-                console.log(loginResponse.data.token);
                 localStorage.setItem("token", loginResponse.data.token);
 
                 try {

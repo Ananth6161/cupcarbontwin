@@ -24,7 +24,7 @@ const UserSchema = new Schema({
     },
     indexes: {
         type: [String]
-    },
+    }
     // role: {
     //     type: String,
     //     enum: Object.values(ROLES),

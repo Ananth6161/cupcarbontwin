@@ -34,6 +34,7 @@ router.post("/", async (req, res) => {
         name : req.body.name,
         email : req.body.email,
         password : hashedPassword,
+        indexes:[],
     })
     console.log("IN REGISTER BACKEND");
     if(isEmailValid(user.email)){
