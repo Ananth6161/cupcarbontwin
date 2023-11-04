@@ -1,0 +1,19 @@
+/* SimulationSensorPopup.css */
+.sensor-form {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    background-color: white;
+  }
+  
+  .sensor-form:active,
+  .sensor-form:focus {
+    background-color: blue;
+  }
+  
+  .form-field {
+    margin-bottom: 10px;
+  }
+  

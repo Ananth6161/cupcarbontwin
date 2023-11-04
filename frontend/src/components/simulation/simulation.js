@@ -1,39 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 
 const SimulationPage = () => {
+  const navigate = useNavigate();
   const [userSchema, setUserSchema] = useState(null);
   const [choice, setChoice] = useState(null); // 'view' or 'new'
   const [selectedIndex, setSelectedIndex] = useState('');
   const [availableIndexes, setAvailableIndexes] = useState([]);
   const [formData, setFormData] = useState({/* Your form data here */});
-
-  useEffect(() => {
-    // Obtain the JWT token from localStorage
-    const jwtToken = localStorage.getItem('token'); // Retrieve the token from localStorage
+  const [email, setEmail] = useState(null);
   
-    // Check if the token exists before making the request
-    
-    if (jwtToken) {
-      // Set the headers for the Axios request with the JWT token
-      // Fetch user schema to get available index names
-      axios.get('http://localhost:4000/userinfo', {
-            headers: {
-                "x-access-token": localStorage.getItem("token"),
-            }
-        })
-        .then((response) => {
-          setUserSchema(response.data);
-          setAvailableIndexes(response.data.indexes);
-        })
-        .catch((error) => {
-          console.error('Error fetching user schema:', error);
-        });
-    } else {
-      // Handle the case where the token is not available in localStorage
-      console.error('JWT token not found in localStorage');
-    }
+  useEffect(() => {
+    setEmail(localStorage.getItem("email"));
+    console.log(email);
+    // Fetch user schema to get available index names
+    axios.get('http://localhost:4000/simulation/userinfo', {
+    params: { email: email }
+  })
+    .then((response) => {
+      setUserSchema(response.data);
+      setAvailableIndexes(response.data.indexes);
+    })
+    .catch((error) => {
+      console.error('Error fetching user schema:', error);
+    });
   }, []);
   
     
@@ -51,34 +44,35 @@ const SimulationPage = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
-
+    if(choice === 'view' && availableIndexes.length === 0)
+    {
+      Swal.fire({
+          icon: 'error',
+          title: 'No Indexes Available, Please choose new simulation',
+      })
+    }
     if (choice === 'view' && selectedIndex) {
       // Send the selected index to the backend
-      axios.post('http://localhost:4000/simulation', { selectedIndex })
+      axios.get('http://localhost:4000/simulation/loading', {
+        params: {
+          emai: email,
+          indexname: selectedIndex
+        }})
         .then((response) => {
           // Handle the response from the backend (e.g., navigate to the simulation page)
+          navigate('main/:${selectedIndex}');
         })
         .catch((error) => {
           console.error('Error sending selected index to the backend:', error);
         });
-    } else if (choice === 'new' && formData.indexName) {
+    } else if (choice === 'new') {
       // Send the entered index name to the backend
-      axios.post('http://localhost:4000/simulation', { indexName: formData.indexName })
-        .then((response) => {
-          // Handle the response from the backend (e.g., navigate to the simulation page)
-        })
-        .catch((error) => {
-          console.error('Error sending entered index name to the backend:', error);
-        });
+      navigate('main/:');
     }
-  };
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
   };
 
   const renderForm = () => {
-    if (choice === 'view' && selectedIndex) {
+    if (choice === 'view') {
       // Render form for viewing an existing simulation based on the selected index
       return (
         <div>
@@ -99,25 +93,13 @@ const SimulationPage = () => {
           </form>
         </div>
       );
-    } else if (choice === 'new') {
-      // Render form for starting a new simulation
+    } 
+    else if(choice === 'new')
+    {
       return (
         <div>
-          <h2>Start New Simulation</h2>
-          <form onSubmit={handleSubmit}>
-            <label>
-              Index Name:
-              <input
-                type="text"
-                name="indexName"
-                value={formData.indexName}
-                onChange={handleFormChange}
-                placeholder="Enter Index Name"
-              />
-            </label>
-            {/* Additional form fields for new simulation */}
-            <button type="submit">Submit</button>
-          </form>
+          <h2>View new Simulation</h2>
+          <button type="submit" onClick={handleSubmit}>Submit</button>
         </div>
       );
     }
@@ -146,14 +128,6 @@ const SimulationPage = () => {
       </label>
       {choice && (
         <div>
-          <select value={selectedIndex} onChange={handleIndexChange}>
-            <option value="">Select Index</option>
-            {availableIndexes.map((index) => (
-              <option key={index} value={index}>
-                {index}
-              </option>
-            ))}
-          </select>
           {renderForm()}
         </div>
       )}

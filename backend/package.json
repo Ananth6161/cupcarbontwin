@@ -23,6 +23,7 @@
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.6.3",
+    "sweetalert2": "^11.3.0",
     "winston": "^3.10.0"
   },
   "devDependencies": {

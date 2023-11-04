@@ -14,16 +14,9 @@ const IIITHLocation = () => {
   useEffect( () => {
     //   // Define your Elasticsearch query to fetch data
     
-    const query = {
-      index: 'tempdata2', // Replace with your Elasticsearch index name
-      body: {
-        "query": {
-          "match_all": {},
-        },
-      },
-    };
+    const indexname = "finaltempdata1"
     
-    axios.get('http://localhost:4000/latestdata', query)
+    axios.get('http://localhost:4000/latestdata', {indexname})
 
     .then((response) => {
       //const hits = response.data.hits.hits; // Access the hits array within the response
@@ -31,17 +24,15 @@ const IIITHLocation = () => {
       const data = response.data; // Access the data property of the Axios response
       console.log(data[0]);
       const markersData = data.map((hit) => {
-        const coordinates = hit.latest_data.Coordinates; // Assuming 'Coordinates' is in the format "lat,lon"
+        const coordinates = hit.latest_data.location; // Assuming 'Coordinates' is in the format "lat,lon"
         const [lat, lon] = coordinates.split(',').map(parseFloat);
         return {
           id: hit.sensor_id,
           position: [lat, lon], // Store position as an array
-          value1: hit.latest_data.value1,
-          value2: hit.latest_data.value2,
-          value3: hit.latest_data.value3,
-          value4: hit.latest_data.value4,
-          value5: hit.latest_data.value5,
-          value6: hit.latest_data.value6,
+          flowrate: hit.latest_data.flowrate,
+          totalflow: hit.latest_data.totalflow,
+          pressure: hit.latest_data.pressure,
+          pressurevoltage: hit.latest_data.pressurevoltage,
         };
       });
       setMarkers(markersData);
@@ -111,7 +102,7 @@ const IIITHLocation = () => {
               onClick={() => handleMarkerClick(marker)} 
             >
               <Popup>
-                <SensorPopup sensor={marker} />
+                <SensorPopup markers={markers.filter((m) => m.position[0] === marker.position[0] && m.position[1] === marker.position[1])} />
               </Popup>
             </Marker>
           );
@@ -120,7 +111,7 @@ const IIITHLocation = () => {
         {selectedSensor && (
           <Marker position={selectedSensor.position}>
             <Popup>
-              <SensorPopup sensor={selectedSensor} />
+              <SensorPopup markers={markers.filter((m) => m.position[0] === selectedSensor.position[0] && m.position[1] === selectedSensor.position[1])} />
             </Popup>
           </Marker>
         )}
