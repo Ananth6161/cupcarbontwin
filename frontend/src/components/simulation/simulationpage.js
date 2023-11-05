@@ -311,7 +311,7 @@ const SimulationPageMain = () => {
         params: { indexname: indexname },
       });
       const data = response.data;
-      console.log(data[0]);
+      console.log(data);
 
       // Process the data and update the sensorData state
       const markersData = data.map((hit) => {

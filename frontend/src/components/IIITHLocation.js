@@ -10,8 +10,8 @@ import DynamicPipes from './DynamicPipes';
 
 const IIITHLocation = () => {
   const [markers, setMarkers] = useState([]);
-  // const [isAddingMarker, setIsAddingMarker] = useState(false);
-  // const [newMarkerPosition, setNewMarkerPosition] = useState(null);
+  const [isAddingMarker, setIsAddingMarker] = useState(false);
+  const [newMarkerPosition, setNewMarkerPosition] = useState(null);
   const [selectedSensor, setSelectedSensor] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
@@ -50,39 +50,40 @@ const IIITHLocation = () => {
       clearInterval(intervalId);
     };
   }, []);
-  // const addMarker = () => {
-  //   // Generate a unique ID for the new marker
-  //   const markerId = markers.length + 1;
+  const addMarker = () => {
+    // Generate a unique ID for the new marker
+    const markerId = markers.length + 1;
   
-  //   // Create a new marker object with an initial position
-  //   const newMarker = {
-  //     //timestamp: "2021-05-01T00:00:00.000Z",
-  //     id: markerId,
-  //     position: [17.4474, 78.3491], // Initial position, you can change this
-  //     value1: 0,
-  //     value2: 0,
-  //     value3: 0,
-  //     value4: 0,
-  //     value5: 0,
-  //     value6: 0
-  //   };
+    // Create a new marker object with an initial position
+    const newMarker = {
+      //timestamp: "2021-05-01T00:00:00.000Z",
+      id: markerId,
+      position: [17.4474, 78.3491], // Initial position, you can change this
+      value1: 0,
+      value2: 0,
+      value3: 0,
+      value4: 0,
+      value5: 0,
+      value6: 0
+    };
   
-  //   // Add the new marker to the markers array
-  //   setMarkers([...markers, newMarker]);
+    // Add the new marker to the markers array
+    setMarkers([...markers, newMarker]);
   
-  //   // Enable marker placement mode
-  //   setIsAddingMarker(true);
-  // };
+    // Enable marker placement mode
+    setIsAddingMarker(true);
+  };
   
-  // const handleMapClick = (e) => {
-  //   if (isAddingMarker) {
-  //     setNewMarkerPosition(e.latlng);
-  //     setIsAddingMarker(false);
-  //   }
-  //   else {
+  const handleMapClick = (e) => {
+    if (isAddingMarker) {
+      setNewMarkerPosition(e.latlng);
+      console.log(e.latlng);
+      setIsAddingMarker(false);
+    }
+    else {
 
-  //   }
-  // };
+    }
+  };
 
   const handleMarkerClick = (sensor) => {
     console.log("Marker clicked:", sensor); // Add this line
@@ -96,12 +97,13 @@ const IIITHLocation = () => {
   
   return (
     <div>
-      {/* <button onClick={addMarker}>Add Marker</button> */}
-      <MapContainer center={[17.4474, 78.3491]} zoom={18} style={{ height: '1000px', width: '100%' }}>
+      <button onClick={addMarker}>Add Marker</button>
+      <MapContainer center={[17.4474, 78.3491]} zoom={18} style={{ height: '1000px', width: '100%' }} onClick = {handleMapClick}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        
         {pipeData.map((pipe) => (
           <Pipe points={pipe} color="blue" />
         ))}
@@ -109,17 +111,35 @@ const IIITHLocation = () => {
         {markers.map((marker) => {
           console.log("Rendering marker:", marker); // Add this line
           return (
-            <Marker 
-              key={marker.id} 
-              position={marker.position} 
-              draggable={false} 
-              icon={new Icon({iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41]})}
-              onClick={() => handleMarkerClick(marker)} 
+            // Within the MapContainer component in IIITHLocation.js
+
+            <Marker
+              position={marker.position}
+              draggable={true}
+              icon={new Icon({
+                iconUrl: markerIconPng,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41]
+              })}
+              onClick={() => handleMarkerClick(marker)}
+              eventHandlers={{
+                dragend: (e) => {
+                  const updatedPosition = e.target.getLatLng(); // Get the updated position
+                  const updatedMarkers = markers.map((m) => {
+                    if (m.id === marker.id) {
+                      return { ...m, position: [updatedPosition.lat, updatedPosition.lng] };
+                    }
+                    return m;
+                  });
+                  setMarkers(updatedMarkers); // Update the markers array with the new position
+                }
+              }}
             >
               <Popup>
-                <SensorPopup markers={markers.filter((m) => m.position[0] === marker.position[0] && m.position[1] === marker.position[1])} />
+                <SensorPopup markers={markers.filter((m) => m.id === marker.id)} />
               </Popup>
             </Marker>
+            
           );
         })}
 
@@ -130,7 +150,7 @@ const IIITHLocation = () => {
             </Popup>
           </Marker>
         )}
-        {/* {isAddingMarker && newMarkerPosition && (
+        {isAddingMarker && newMarkerPosition && (
           <Marker
             position={newMarkerPosition}
             draggable={true}
@@ -144,7 +164,7 @@ const IIITHLocation = () => {
             <Popup>Drag and place this marker</Popup>
           </Marker>
           // datasimulation(markers[markers.length -1]);
-        )} */}
+        )}
       </MapContainer>
     </div>
   );
