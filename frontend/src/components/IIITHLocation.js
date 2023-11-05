@@ -85,10 +85,11 @@ const IIITHLocation = () => {
     setSelectedSensor(sensor);
   };
   const dynamicPipeSize = 40;
-  const pipeCoordinates = [
+  const pipeData = [
     [[17.4474, 78.3491], [17.4474, 78.3481]], // Example pipe coordinates
     // Add more pipe coordinates as needed
   ];
+  
   return (
     <div>
       {/* <button onClick={addMarker}>Add Marker</button> */}
@@ -97,7 +98,9 @@ const IIITHLocation = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <DynamicPipes size={dynamicPipeSize} coordinates={pipeCoordinates} />
+        {pipeData.map((pipe) => (
+          <Pipe points={pipe} color="blue" />
+        ))}
 
         {markers.map((marker) => {
           console.log("Rendering marker:", marker); // Add this line
