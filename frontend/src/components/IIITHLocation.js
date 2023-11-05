@@ -13,38 +13,42 @@ const IIITHLocation = () => {
   // const [isAddingMarker, setIsAddingMarker] = useState(false);
   // const [newMarkerPosition, setNewMarkerPosition] = useState(null);
   const [selectedSensor, setSelectedSensor] = useState(null);
-  useEffect( () => {
-    //   // Define your Elasticsearch query to fetch data
-    
-    const indexname = "finaltempdata1"
-    
-    axios.get('http://localhost:4000/latestdata', {indexname})
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const indexname = "finaltempdata1";
+        const response = await axios.get('http://localhost:4000/latestdata', { params: { indexname } });
+        const data = response.data;
+        const markersData = data.map((hit) => {
+          const coordinates = hit.latest_data.location;
+          const [lat, lon] = coordinates.split(',').map(parseFloat);
+          return {
+            id: hit.sensor_id,
+            position: [lat, lon],
+            flowrate: hit.latest_data.flowrate,
+            totalflow: hit.latest_data.totalflow,
+            pressure: hit.latest_data.pressure,
+            pressurevoltage: hit.latest_data.pressurevoltage,
+          };
+        });
+        setMarkers(markersData);
+      } catch (error) {
+        console.error('Error fetching data from Elasticsearch:', error);
+      }
+    };
 
-    .then((response) => {
-      //const hits = response.data.hits.hits; // Access the hits array within the response
-      //console.log('Elasticsearch data:', hits);
-      const data = response.data; // Access the data property of the Axios response
-      console.log(data[0]);
-      const markersData = data.map((hit) => {
-        const coordinates = hit.latest_data.location; // Assuming 'Coordinates' is in the format "lat,lon"
-        const [lat, lon] = coordinates.split(',').map(parseFloat);
-        return {
-          id: hit.sensor_id,
-          position: [lat, lon], // Store position as an array
-          flowrate: hit.latest_data.flowrate,
-          totalflow: hit.latest_data.totalflow,
-          pressure: hit.latest_data.pressure,
-          pressurevoltage: hit.latest_data.pressurevoltage,
-        };
-      });
-      setMarkers(markersData);
-      console.log(markersData)
-      console.log(markers)
-      return false;
-    })
-    .catch((error) => {
-      console.error('Error fetching data from Elasticsearch:', error);
-    });
+    // Fetch data initially when the component mounts
+    fetchData();
+
+    // Set up an interval to fetch data every, for example, 10 seconds (adjust as needed)
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 10000); // 10 seconds in milliseconds
+
+    // Clean up the interval when the component unmounts
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
   // const addMarker = () => {
   //   // Generate a unique ID for the new marker
@@ -86,7 +90,7 @@ const IIITHLocation = () => {
   };
   const dynamicPipeSize = 40;
   const pipeData = [
-    [[17.4474, 78.3491], [17.4474, 78.3481]], // Example pipe coordinates
+    [[17.4474, 78.3491], [17.4474, 78.3481], [17.448, 78.3475]], // Example pipe coordinates
     // Add more pipe coordinates as needed
   ];
   

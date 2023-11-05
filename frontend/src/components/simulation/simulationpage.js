@@ -9,14 +9,19 @@ import { useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 const SimulationPageMain = () => {
-  var { indexname } = useParams();
+  const { indexname: initialIndexName } = useParams(); // Use the indexname from useParams directly
+
+  const [indexname, setIndexName] = useState(initialIndexName);
   const [sensorData, setSensorData] = useState([]);
   const [isAddingMarker, setIsAddingMarker] = useState(false);
   const [newMarkerPosition, setNewMarkerPosition] = useState(null);
   const [selectedSensor, setSelectedSensor] = useState(null);
   const [email, setEmail] = useState(null);
+  const [markers, setMarkers] = useState([]);
+  const [isSimulationRunning, setIsSimulationRunning] = useState(false);
+  const [simulationInterval, setSimulationInterval] = useState(null);
   const [formData, setFormData] = useState({
-    filename: '',
+    filename: initialIndexName,
   });
   var indextosend = indexname;
   useEffect(() => {
@@ -29,15 +34,14 @@ const SimulationPageMain = () => {
     {
       indextosend = "finaltempdata1";
     }
-    else
-    {
-      indextosend = indextosend.replace(":", "");
-    }
     console.log(indextosend);
-    axios.get('http://localhost:4000/latestdata', {
+    if(indextosend === "finaltempdata1")
+    {
+      axios.get('http://localhost:4000/latestdata', {
       params:{indexname: indextosend} })
       .then((response) => {
         const data = response.data;
+        console.log(data[0]);
         const markersData = data.map((hit) => {
           const coordinates = hit.latest_data.location;
           const [lat, lon] = coordinates.split(',').map(parseFloat);
@@ -55,6 +59,40 @@ const SimulationPageMain = () => {
       .catch((error) => {
         console.error('Error fetching data from Elasticsearch:', error);
       });
+    }
+    else
+    {
+      axios.get('http://localhost:4000/latestdata', {
+      params:{indexname: indextosend} })
+      .then((response) => {
+        const data = response.data;
+        console.log(data[0]);
+        const markersData = data.map((hit) => {
+          const location = hit.latest_data.location;
+
+      // Check if location is an object with lat and lon properties
+      if (location && typeof location === 'object' && 'lat' in location && 'lon' in location) {
+          const { lat, lon } = location;
+          return {
+            id: hit.sensor_id,
+            position: [lat, lon],
+            flowrate: hit.latest_data.flowrate,
+            totalflow: hit.latest_data.totalflow,
+            pressure: hit.latest_data.pressure,
+            pressurevoltage: hit.latest_data.pressurevoltage
+          };
+        } else {
+          // Handle the case where location is not in the expected format
+          // You can log an error or take appropriate action
+          return null; // or another default value
+        }
+        });
+        setSensorData(markersData);
+      })
+      .catch((error) => {
+        console.error('Error fetching data from Elasticsearch:', error);
+      });
+    }
   }, []);
 
   const addMarker = () => {
@@ -141,10 +179,10 @@ const SimulationPageMain = () => {
             .then((response) => {
               if (response.status === 200) {
                 // Handle success
-                indexname = formData.filename; 
+                setIndexName(formData.filename);
                 Swal.fire({
                   icon: 'success',
-                  title: 'File saved successfully',
+                  title: 'File saved successfully, simulation starts now',
                 });
               } else if (response.status === 400) {
                 // Handle other status codes or conditions if needed
@@ -175,35 +213,181 @@ const SimulationPageMain = () => {
     }
   };
   
-  const handleBeforeUnload = (event) => {
-    event.preventDefault();
+  // const handleSaveData = () => {
+  //   if (indexname === ":") {
+  //     Swal.fire({
+  //       title: "Simulation File Not Saved",
+  //       text: "You need to save the simulation file before saving data.",
+  //       icon: "warning",
+  //     });
+  //   } else {
+  //     // Proceed with saving the data as the simulation file is already saved
+  //     const requestData = {
+  //       indexname: indexname,
+  //       sensorData: sensorData,
+  //       timestamp: new Date().toISOString() // Include the timestamp in the request
+  //     };
   
-    const sensorsJson = JSON.stringify(sensorData);
-    axios.post('http://localhost:4000/simulation/updateSensorData', {
-      params:
-      { indexname: indexname,
-        sensorData: sensorsJson
+  //     axios.post('http://localhost:4000/simulation/updateSensorData', requestData)
+  //       .then(response => {
+  //         console.log ('Data uploaded successfully:', response.data);
+  //       })
+  //       .catch(error => {
+  //         console.error('Error uploading data:', error);
+  //       });
+  //   }
+  // };
+  
+  
+  // const handleBeforeUnload = (event) => {
+  //   if (indexname !== ":") {
+  //     const requestData = JSON.stringify({
+  //       indexname: indexname,
+  //       sensorData: sensorData,
+  //       timestamp: new Date().toISOString() // Include the timestamp in the request
+  //     });
+  
+  //     axios.post('http://localhost:4000/simulation/updateSensorData', requestData)
+  //       .then(response => {
+  //         console.log('Data uploaded successfully:', response.data);
+  //       })
+  //       .catch(error => {
+  //         console.error('Error uploading data:', error);
+  //       });
+  //   }
+  //   // Display a confirmation message to the user
+  //   event.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+  // };
+
+  // useEffect(() => {
+  //   window.addEventListener('beforeunload', handleBeforeUnload);
+  
+  //   // Clean up the event listener when the component unmounts
+  //   return () => {
+  //     window.removeEventListener('beforeunload', handleBeforeUnload);
+  //   };
+  // }, []);
+
+  function isDifferent(markers, sensorData) {
+    // If the arrays have different lengths, they are different
+    if (markers.length !== sensorData.length) {
+      return true;
+    }
+  
+    // Create a map to easily look up markers by their id
+    const markerMap = new Map();
+    markers.forEach((marker) => {
+      markerMap.set(marker.id, marker);
+    });
+  
+    // Compare each object in sensorData with the corresponding object in markers
+    for (const sensor of sensorData) {
+      const correspondingMarker = markerMap.get(sensor.id);
+  
+      if (!correspondingMarker) {
+        // If there is no corresponding marker, they are different
+        return true;
       }
-    })
-      .then((response) => {
-        // Handle the response (e.g., show a confirmation message)
-        // You can use Swal or other methods to provide user feedback.
-      })
-      .catch((error) => {
-        // Handle errors
-        console.error('Error:', error);
-        // You can also show an error message to the user.
+  
+      if (
+        sensor.flowrate !== correspondingMarker.flowrate ||
+        sensor.totalflow !== correspondingMarker.totalflow ||
+        sensor.pressure !== correspondingMarker.pressure ||
+        sensor.pressurevoltage !== correspondingMarker.pressurevoltage
+      ) {
+        // If any of the properties are different, return true
+        return true;
+      }
+    }
+  
+    // If no differences were found, return false
+    return false;
+  }
+  
+  const fetchData = async () => {
+    try {
+      // Fetch the latest data from the server using axios
+      const response = await axios.get('http://localhost:4000/latestdata', {
+        params: { indexname: indexname },
       });
+      const data = response.data;
+      console.log(data[0]);
+
+      // Process the data and update the sensorData state
+      const markersData = data.map((hit) => {
+        const location = hit.latest_data.location;
+        const { lat, lon } = location;
+        return {
+          id: hit.sensor_id,
+          position: [lat, lon],
+          flowrate: hit.latest_data.flowrate,
+          totalflow: hit.latest_data.totalflow,
+          pressure: hit.latest_data.pressure,
+          pressurevoltage: hit.latest_data.pressurevoltage,
+        };
+      });
+      setMarkers(markersData);
+    } catch (error) {
+      console.error('Error fetching data from Elasticsearch:', error);
+    }
+  };
+
+  const startSimulation = () => {
+    if (indexname === ":") {
+      // Display a warning to the user if the file is not saved
+      Swal.fire({
+        icon: 'warning',
+        title: 'Please save the file before starting the simulation.',
+      });
+    } 
+    else
+    {
+      setIsSimulationRunning(true);
+
+      // Set up an interval to periodically check and upload data
+      const intervalId = setInterval(() => {
+
+        fetchData(); // Fetch the latest data
+
+        // Compare your sensorData with the latest data
+        if (isDifferent(sensorData, markers)) {
+          // Upload the data if it's different
+          const requestData = {
+            indexname: indexname,
+            sensorData: sensorData,
+            timestamp: new Date().toISOString() // Include the timestamp in the request
+          };
+        
+          axios.post('http://localhost:4000/simulation/updateSensorData', requestData)
+            .then(response => {
+              console.log ('Data uploaded successfully:', response.data);
+            })
+            .catch(error => {
+              console.error('Error uploading data:', error);
+            });
+        }
+      }, 10000); // 10 seconds in milliseconds
+
+      // Store the intervalId to clean up later
+      setSimulationInterval(intervalId);
+    }
+  };
+
+  const stopSimulation = () => {
+    setIsSimulationRunning(false);
+    clearInterval(simulationInterval); // Clear the interval to stop the simulation
   };
 
   useEffect(() => {
-    window.addEventListener('beforeunload', handleBeforeUnload);
-  
-    // Clean up the event listener when the component unmounts
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
+    if(indexname !== ":")
+    {
+      console.log("Previous simulation data fetched");
+      fetchData();
+    }
+      
+  }, [indexname]);
+
+
   return (
     <div>
       <div>
@@ -222,6 +406,13 @@ const SimulationPageMain = () => {
       </div>
       <br></br>
       <button onClick={addMarker}>Add Marker</button>
+      {/* <button onClick={handleSaveData}>Save</button> */}
+      <button onClick={startSimulation} disabled={isSimulationRunning}>
+        Start Simulation
+      </button>
+      <button onClick={stopSimulation} disabled={!isSimulationRunning}>
+        Stop Simulation
+      </button>
       <MapContainer center={[17.4474, 78.3491]} zoom={18} style={{ height: '1000px', width: '100%' }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
