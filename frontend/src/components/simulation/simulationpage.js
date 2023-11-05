@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 const SimulationPageMain = () => {
-  const { indexname } = useParams();
+  var { indexname } = useParams();
   const [sensorData, setSensorData] = useState([]);
   const [isAddingMarker, setIsAddingMarker] = useState(false);
   const [newMarkerPosition, setNewMarkerPosition] = useState(null);
@@ -20,10 +20,20 @@ const SimulationPageMain = () => {
   });
   var indextosend = indexname;
   useEffect(() => {
+    const emailFromLocalStorage = localStorage.getItem('email');
+    setEmail(emailFromLocalStorage);
+  }, []);
+  
+  useEffect(() => {
     if(indexname === ":")
     {
       indextosend = "finaltempdata1";
     }
+    else
+    {
+      indextosend = indextosend.replace(":", "");
+    }
+    console.log(indextosend);
     axios.get('http://localhost:4000/latestdata', {
       params:{indexname: indextosend} })
       .then((response) => {
@@ -123,9 +133,10 @@ const SimulationPageMain = () => {
       }).then((result) => {
         if (result.isConfirmed) {
           // User clicked "OK," proceed with the request
+          console.log(formData.filename);
           axios.post('http://localhost:4000/simulation/userinfo', {
-            params:{email: email,
-            filename: formData.filename} 
+            email: email,
+            filename: formData.filename 
           })
             .then((response) => {
               if (response.status === 200) {

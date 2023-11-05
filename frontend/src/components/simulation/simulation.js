@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -12,22 +12,30 @@ const SimulationPage = () => {
   const [availableIndexes, setAvailableIndexes] = useState([]);
   const [formData, setFormData] = useState({/* Your form data here */});
   const [email, setEmail] = useState(null);
+  useEffect(() => {
+    const emailFromLocalStorage = localStorage.getItem('email');
+    setEmail(emailFromLocalStorage);
+  }, []); // This effect runs once when the component mounts
   
   useEffect(() => {
-    setEmail(localStorage.getItem("email"));
-    console.log(email);
-    // Fetch user schema to get available index names
-    axios.get('http://localhost:4000/simulation/userinfo', {
-    params: { email: email }
-  })
-    .then((response) => {
-      setUserSchema(response.data);
-      setAvailableIndexes(response.data.indexes);
+    if (email) {
+      console.log(email);
+      // Fetch user schema to get available index names
+      axios.get('http://localhost:4000/simulation/userinfo', {
+      params: {
+        email: email
+      }
     })
-    .catch((error) => {
-      console.error('Error fetching user schema:', error);
-    });
-  }, []);
+      .then((response) => {
+        setUserSchema(response.data);
+        setAvailableIndexes(response.data.indexes);
+      })
+      .catch((error) => {
+        console.error('Error fetching user schema:', error);
+      });
+    }
+  }, [email]); // This effect runs whenever the 'email' state changes
+  
   
     
   const handleChoiceChange = (e) => {
@@ -53,18 +61,20 @@ const SimulationPage = () => {
     }
     if (choice === 'view' && selectedIndex) {
       // Send the selected index to the backend
-      axios.get('http://localhost:4000/simulation/loading', {
-        params: {
-          emai: email,
-          indexname: selectedIndex
-        }})
-        .then((response) => {
+      // axios.get('http://localhost:4000/simulation/loading', {
+      //   params:
+      //   {
+      //     emai: email,
+      //     indexname: selectedIndex
+      //   }  
+      //   })
+      //   .then((response) => {
           // Handle the response from the backend (e.g., navigate to the simulation page)
-          navigate('main/:${selectedIndex}');
-        })
-        .catch((error) => {
-          console.error('Error sending selected index to the backend:', error);
-        });
+          navigate(`main/${selectedIndex}`);
+        // })
+        // .catch((error) => {
+        //   console.error('Error sending selected index to the backend:', error);
+        // });
     } else if (choice === 'new') {
       // Send the entered index name to the backend
       navigate('main/:');

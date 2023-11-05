@@ -5,7 +5,7 @@ const  elasticClient  = require("../middleware/elasticsearch-client");
 const User = require('../models/user');
 
 router.get('/userinfo', (req, res) => {
-  
+  //console.log(req);
   const userEmail = req.query.email;
   console.log(userEmail);
   User.findOne({ email: userEmail })
@@ -24,46 +24,77 @@ router.get('/userinfo', (req, res) => {
     });
 });
 
-router.post('/userinfo', (req, res) => {
-  // Get the index name from the request
-  const indexName = req.query.filename; // You'll need to send this in the request body
+router.post('/userinfo', async (req, res) => {
+  console.log(req.body);
+  const indexName = req.body.filename; // You'll need to send this in the request body
+  console.log(indexName);
   const simulationIndexName = `simulation${indexName}`;
-  const userEmail = req.query.email;
-  // Check if the index exists
-  elasticClient.indices.exists({ index: indexName })
-    .then((indexExists) => {
+  const userEmail = req.body.email;
+  console.log(userEmail);
+  const index_mapping = {
+    "mappings": {
+            "properties": {
+                "sensorid": {
+                    "type": "keyword"
+                },
+                "flowrate": {
+                    "type": "double"
+                },
+                "totalflow": {
+                    "type": "double"
+                },
+                "pressure": {
+                    "type": "double"
+                },
+                "pressurevoltage": {
+                    "type": "double"
+                },
+                "timestamp": {
+                    "type": "date"
+                },
+                "location": {
+                    "type": "geo_point"
+                },
+                "versioninfo": {
+                    "type": "text"
+                }
+            }
+        }
+    }
+
+  try {
+    const user = await User.findOne({ email: userEmail });
+
+    if (user) {
+      // Check if the index exists in Elasticsearch
+      const indexExists = await elasticClient.indices.exists({ index: indexName });
+
       if (indexExists) {
         return res.status(400).json({ message: 'File already exists. Please choose another name.' });
-      } else {
-        // If the index does not exist, create it
-        return elasticClient.indices.create({ index: indexName })
-          .then(() => {
-            // Now, you have created the index in Elasticsearch. You can update your database or any other required actions here.
-            // For example, updating the User model's indexes array.
-            return User.findOneAndUpdate({ email: userEmail }, { $push: { indexes: indexName } })
-              .then(() => {
-                return elasticClient.indices.create({ index: simulationIndexName })
-                  .then(() => {
-                    // Handle success for creating the simulation index
-                    return res.status(200).json({ message: 'File created and user updated successfully.' });
-                  })
-              })
-              .catch((err) => {
-                console.error('Error:', err);
-                res.status(500).json({ message: 'Internal server error' });
-              });
-          })
-          .catch((err) => {
-            console.error('Error:', err);
-            res.status(500).json({ message: 'Internal server error' });
-          });
       }
-    })
-    .catch((err) => {
-      console.error('Error:', err);
-      res.status(500).json({ message: 'Internal server error' });
-    });
+
+      // Push the new indexName into the user's indexes array
+      user.indexes.push(indexName);
+
+      // Save the updated user
+      await user.save();
+
+      // Now, you have created the index in Elasticsearch. You can update your database or any other required actions here.
+      // For example, updating the User model's indexes array.
+      await elasticClient.indices.create({ index: indexName, body: index_mapping });
+      await elasticClient.indices.create({ index: simulationIndexName, body: index_mapping });
+
+      return res.status(200).json({ message: 'File created and user updated successfully.' });
+    } else {
+      return res.status(400).json({ message: 'User not found.' });
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 });
+
+
 
 router.get('http://localhost:4000/simulation/loading', (req, res) => {
   

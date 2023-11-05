@@ -5,6 +5,8 @@ import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import {Icon} from 'leaflet';
 import axios from "axios";
 import SensorPopup from './SensorPopup';
+import Pipe from './pipe';
+import DynamicPipes from './DynamicPipes'; 
 
 const IIITHLocation = () => {
   const [markers, setMarkers] = useState([]);
@@ -82,7 +84,11 @@ const IIITHLocation = () => {
     console.log("Marker clicked:", sensor); // Add this line
     setSelectedSensor(sensor);
   };
-  
+  const dynamicPipeSize = 40;
+  const pipeCoordinates = [
+    [[17.4474, 78.3491], [17.4474, 78.3481]], // Example pipe coordinates
+    // Add more pipe coordinates as needed
+  ];
   return (
     <div>
       {/* <button onClick={addMarker}>Add Marker</button> */}
@@ -91,6 +97,8 @@ const IIITHLocation = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        <DynamicPipes size={dynamicPipeSize} coordinates={pipeCoordinates} />
+
         {markers.map((marker) => {
           console.log("Rendering marker:", marker); // Add this line
           return (
