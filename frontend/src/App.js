@@ -10,6 +10,7 @@ import Login from './Login.js';
 import SimulationPage from './components/simulation/simulation';
 import IIITHLocation from './components/IIITHLocation';
 import SimulationPageMain from './components/simulation/simulationpage';
+import Dashboard from './components/VisualizationDashboard';
 
 const Layout = () => {
   return (
@@ -21,7 +22,7 @@ const Layout = () => {
     </div>
   );
 };
-import Dashboard from './components/VisualizationDashboard';
+
 function App() {
   return (
     <ThemeProvider theme={theme}>

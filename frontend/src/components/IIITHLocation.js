@@ -97,7 +97,7 @@ const IIITHLocation = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <DynamicPipes size={dynamicPipeSize} coordinates={pipeCoordinates} />
+        <Pipe points = {pipeCoordinates} colour = "blue"/>
 
         {markers.map((marker) => {
           console.log("Rendering marker:", marker); // Add this line
