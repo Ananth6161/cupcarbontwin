@@ -41,14 +41,14 @@ const IIITHLocation = () => {
     fetchData();
 
     // Set up an interval to fetch data every, for example, 10 seconds (adjust as needed)
-    const intervalId = setInterval(() => {
-      fetchData();
-    }, 10000); // 10 seconds in milliseconds
+    // const intervalId = setInterval(() => {
+    //   fetchData();
+    // }, 10000); // 10 seconds in milliseconds
 
-    // Clean up the interval when the component unmounts
-    return () => {
-      clearInterval(intervalId);
-    };
+    // // Clean up the interval when the component unmounts
+    // return () => {
+    //   clearInterval(intervalId);
+    // };
   }, []);
   const addMarker = () => {
     // Generate a unique ID for the new marker

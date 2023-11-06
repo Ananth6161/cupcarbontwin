@@ -16,6 +16,7 @@ import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { ListItemButton } from "@mui/material";
+import { MapIcon } from '@mui/icons-material';
 import logo from '../../assets/images/teacher.png'
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import QuizIcon from '@mui/icons-material/Quiz';
@@ -23,6 +24,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import LogoutIcon from '@mui/icons-material/Logout';
+import "./Navbar.css"
 
 // function Navbar() {
 //   const [authenticated, setAuthenticated] = useState(false); // Initialize with false for unauthenticated state
@@ -143,7 +145,7 @@ const Navbar = (props) => {
                           <List>
                               <ListItem>
                                   <ListItemIcon>
-                                      <DashboardIcon />
+                                      <MapIcon />
                                       <ListItemButton onClick={() => { setDrawer(false); navigate("map") }}>
                                           Map
                                       </ListItemButton>
@@ -178,7 +180,7 @@ const Navbar = (props) => {
                               <Divider/>
                               <Tab label="Simulation" value={routes[1]} component={Link} to={routes[1]} />
                               <Divider/>
-                              <Tab label="Log out" onClick={handleLogout} />
+                              <Tab label="Log out" onClick={handleLogout} className="logout-tab"/>
                               <Divider/>
                           </Tabs>
                       </>
