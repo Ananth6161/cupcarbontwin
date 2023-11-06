@@ -16,9 +16,12 @@ const SimulationSensorPopup = ({ markers, onSensorDataChange }) => {
   };
 
   // Handle OK button click
-  const handleOKClick = () => {
-    // Call the parent component's function to update data for all markers
-    onSensorDataChange(formData);
+  const handleOKClick = (markerId) => {
+    // Create a callback function that includes the ID
+    return () => {
+      // Call the parent component's function to update data for the specific marker
+      onSensorDataChange(formData, markerId);
+    };
   };
 
   if (!markers) {
@@ -67,7 +70,7 @@ const SimulationSensorPopup = ({ markers, onSensorDataChange }) => {
                 onChange={(e) => handleInputChange(e, marker.id)}
               />
             </div>
-            <button onClick={handleOKClick}>Ok</button>
+            <button onClick={handleOKClick(marker.id)}>Ok</button>
           </form>
         </div>
       ))}

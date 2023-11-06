@@ -121,7 +121,7 @@ const IIITHLocation = () => {
 
             <Marker
               position={marker.position}
-              draggable={true}
+              draggable={false}
               icon={new Icon({
                 iconUrl: markerIconPng,
                 iconSize: [25, 41],
@@ -142,7 +142,7 @@ const IIITHLocation = () => {
               }}
             >
               <Popup>
-                <SensorPopup markers={markers.filter((m) => m.id === marker.id)} />
+                <SensorPopup markers={markers.filter((m) => m.position[0] === marker.position[0] && m.position[1] === marker.position[1])} />
               </Popup>
             </Marker>
             

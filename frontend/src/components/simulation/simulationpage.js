@@ -6,11 +6,11 @@ import { Icon } from 'leaflet';
 import axios from "axios";
 import SimulationSensorPopup from './SimulationSensorPopup';
 import { useParams } from 'react-router-dom';
+import GraphComputationComponent from './Graph';
 import Swal from 'sweetalert2';
 
 const SimulationPageMain = () => {
   const { indexname: initialIndexName } = useParams(); // Use the indexname from useParams directly
-
   const [indexname, setIndexName] = useState(initialIndexName);
   const [sensorData, setSensorData] = useState([]);
   const [isAddingMarker, setIsAddingMarker] = useState(false);
@@ -23,6 +23,7 @@ const SimulationPageMain = () => {
   const [formData, setFormData] = useState({
     filename: initialIndexName,
   });
+  const [graph, setGraph] = useState(new Map());
   var indextosend = indexname;
   useEffect(() => {
     const emailFromLocalStorage = localStorage.getItem('email');
@@ -93,6 +94,7 @@ const SimulationPageMain = () => {
         console.error('Error fetching data from Elasticsearch:', error);
       });
     }
+    
   }, []);
 
   const addMarker = () => {
@@ -120,26 +122,84 @@ const SimulationPageMain = () => {
     setSelectedSensor(sensor);
   };
 
-  const handleSensorDataChange = (originalData, sensorId, newData) => {
-    // // Find the index of the sensor in the array based on its ID
-    // const sensorIndex = sensorData.findIndex((sensor) => sensor.id === sensorId);
-  
-    // if (sensorIndex !== -1) {
-    //   // Create a copy of the sensor data array
-    //   const updatedSensorData = [...sensorData];
-      
-    //   // Update the sensor's data
-    //   updatedSensorData[sensorIndex] = newData;
-  
-    //   // Set the updated sensor data to the state
-    //   setSensorData(updatedSensorData);
-  
-    //   // Now you have access to originalData, sensorId, and newData for further processing
-    //   console.log("Sensor ID:", sensorId);
-    //   console.log("Original Data:", originalData);
-    //   console.log("New Data:", newData);
-    // }
+  const handleSensorDataChange = (formData, markerId) => {
+    console.log("Form Data:", formData);
+    console.log("Sensor ID:", markerId);
+    const changedSensor = sensorData.find((sensor) => sensor.id === markerId);
+    const formDataSensor = formData.find((sensor) => sensor.id === markerId);
+
+    if (formDataSensor) {
+    // Update the sensorData for the specific sensor with the matching markerId
+    const updatedData = sensorData.map((sensor) => {
+      if (sensor.id === markerId) {
+        return { ...sensor, ...formDataSensor }; // Merge the formDataSensor data into the sensorData
+      }
+      return sensor;
+    });
+
+    setSensorData(updatedData);
+    // Update the graph with the new values
+    const updatedGraph = updateGraphBasedOnSensorChange(graph, changedSensor);
+    console.log("Updated Sensor Data:", updatedData);
+    console.log("Updated Graph:", updatedGraph);
+    }
+    else {
+      // Handle the case where no matching sensor is found in formData
+      console.log(`Sensor with ID ${markerId} not found in formData.`);
+    }
   };
+  
+  function updateGraphBasedOnSensorChange(graph, changedSensor) {
+    const { id, flowrate } = changedSensor;
+    const newData = sensorData.find((sensor) => {sensor.id === id});
+    console.log(newData);
+    const ratio = newData.flowrate / flowrate;
+    const updatedGraph = new Map(graph);
+  
+    // Determine the neighbors of the changed sensor in the graph
+    const neighbors = updatedGraph.get(id);
+  
+    // Create a set to keep track of visited nodes
+    const visited = new Set();
+  
+    // Depth-first traversal function
+    const traverse = (nodeId) => {
+      if (visited.has(nodeId)) {
+        return;
+      }
+      visited.add(nodeId);
+  
+      // Update the values of the neighboring nodes in the graph
+      neighbors.forEach((neighbor) => {
+        const neighborId = neighbor.id;
+        const weight = neighbor.weight;
+  
+        // Find the neighbor's data in sensorData
+        const neighborData = sensorData.find((sensor) => sensor.id === neighborId);
+  
+        if (neighborData) {
+          neighborData.flowrate *= ratio*weight;
+          neighborData.totalflow *= ratio*weight;
+          neighborData.pressure *= ratio*weight;
+          neighborData.pressurevoltage *= ratio*weight;
+          const newData = sensorData.map((sensor) => {
+            if (sensor.id === neighborId) {
+              return { ...sensor, ...neighborData }; // Merge the formDataSensor data into the sensorData
+            }
+            return sensor;
+          });
+      
+          setSensorData(newData);
+          // Continue the traversal from the neighbor node
+          traverse(neighborId);
+        }
+      });
+    };
+    // Start the traversal from the changedSensor node
+    traverse(id);
+  
+    return updatedGraph;
+  }
   
 
   const handleFileNameChange = (e) => {
@@ -212,61 +272,6 @@ const SimulationPageMain = () => {
       });
     }
   };
-  
-  // const handleSaveData = () => {
-  //   if (indexname === ":") {
-  //     Swal.fire({
-  //       title: "Simulation File Not Saved",
-  //       text: "You need to save the simulation file before saving data.",
-  //       icon: "warning",
-  //     });
-  //   } else {
-  //     // Proceed with saving the data as the simulation file is already saved
-  //     const requestData = {
-  //       indexname: indexname,
-  //       sensorData: sensorData,
-  //       timestamp: new Date().toISOString() // Include the timestamp in the request
-  //     };
-  
-  //     axios.post('http://localhost:4000/simulation/updateSensorData', requestData)
-  //       .then(response => {
-  //         console.log ('Data uploaded successfully:', response.data);
-  //       })
-  //       .catch(error => {
-  //         console.error('Error uploading data:', error);
-  //       });
-  //   }
-  // };
-  
-  
-  // const handleBeforeUnload = (event) => {
-  //   if (indexname !== ":") {
-  //     const requestData = JSON.stringify({
-  //       indexname: indexname,
-  //       sensorData: sensorData,
-  //       timestamp: new Date().toISOString() // Include the timestamp in the request
-  //     });
-  
-  //     axios.post('http://localhost:4000/simulation/updateSensorData', requestData)
-  //       .then(response => {
-  //         console.log('Data uploaded successfully:', response.data);
-  //       })
-  //       .catch(error => {
-  //         console.error('Error uploading data:', error);
-  //       });
-  //   }
-  //   // Display a confirmation message to the user
-  //   event.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-  // };
-
-  // useEffect(() => {
-  //   window.addEventListener('beforeunload', handleBeforeUnload);
-  
-  //   // Clean up the event listener when the component unmounts
-  //   return () => {
-  //     window.removeEventListener('beforeunload', handleBeforeUnload);
-  //   };
-  // }, []);
 
   function isDifferent(markers, sensorData) {
     // If the arrays have different lengths, they are different
