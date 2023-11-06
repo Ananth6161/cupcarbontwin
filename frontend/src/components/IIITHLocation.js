@@ -10,8 +10,8 @@ import DynamicPipes from './DynamicPipes';
 
 const IIITHLocation = () => {
   const [markers, setMarkers] = useState([]);
-  const [isAddingMarker, setIsAddingMarker] = useState(false);
-  const [newMarkerPosition, setNewMarkerPosition] = useState(null);
+  // const [isAddingMarker, setIsAddingMarker] = useState(false);
+  // const [newMarkerPosition, setNewMarkerPosition] = useState(null);
   const [selectedSensor, setSelectedSensor] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
@@ -41,49 +41,49 @@ const IIITHLocation = () => {
     fetchData();
 
     // Set up an interval to fetch data every, for example, 10 seconds (adjust as needed)
-    // const intervalId = setInterval(() => {
-    //   fetchData();
-    // }, 10000); // 10 seconds in milliseconds
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 10000); // 10 seconds in milliseconds
 
-    // // Clean up the interval when the component unmounts
-    // return () => {
-    //   clearInterval(intervalId);
-    // };
-  }, []);
-  const addMarker = () => {
-    // Generate a unique ID for the new marker
-    const markerId = markers.length + 1;
-  
-    // Create a new marker object with an initial position
-    const newMarker = {
-      //timestamp: "2021-05-01T00:00:00.000Z",
-      id: markerId,
-      position: [17.4474, 78.3491], // Initial position, you can change this
-      value1: 0,
-      value2: 0,
-      value3: 0,
-      value4: 0,
-      value5: 0,
-      value6: 0
+    // Clean up the interval when the component unmounts
+    return () => {
+      clearInterval(intervalId);
     };
+  }, []);
+  // const addMarker = () => {
+  //   // Generate a unique ID for the new marker
+  //   const markerId = markers.length + 1;
   
-    // Add the new marker to the markers array
-    setMarkers([...markers, newMarker]);
+  //   // Create a new marker object with an initial position
+  //   const newMarker = {
+  //     //timestamp: "2021-05-01T00:00:00.000Z",
+  //     id: markerId,
+  //     position: [17.4474, 78.3491], // Initial position, you can change this
+  //     value1: 0,
+  //     value2: 0,
+  //     value3: 0,
+  //     value4: 0,
+  //     value5: 0,
+  //     value6: 0
+  //   };
   
-    // Enable marker placement mode
-    setIsAddingMarker(true);
-  };
+  //   // Add the new marker to the markers array
+  //   setMarkers([...markers, newMarker]);
   
-  const handleMapClick = (e) => {
-    if (isAddingMarker) {
-      setNewMarkerPosition(e.latlng);
-      console.log(e.latlng);
-      setIsAddingMarker(false);
-    }
-    else {
+  //   // Enable marker placement mode
+  //   setIsAddingMarker(true);
+  // };
+  
+  // const handleMapClick = (e) => {
+  //   if (isAddingMarker) {
+  //     setNewMarkerPosition(e.latlng);
+  //     console.log(e.latlng);
+  //     setIsAddingMarker(false);
+  //   }
+  //   else {
 
-    }
-  };
+  //   }
+  // };
 
   const handleMarkerClick = (sensor) => {
     console.log("Marker clicked:", sensor); // Add this line
@@ -103,8 +103,8 @@ const IIITHLocation = () => {
   
   return (
     <div>
-      <button onClick={addMarker}>Add Marker</button>
-      <MapContainer center={[17.4474, 78.3491]} zoom={18} style={{ height: '1000px', width: '100%' }} onClick = {handleMapClick}>
+      {/* <button onClick={addMarker}>Add Marker</button> */}
+      <MapContainer center={[17.4474, 78.3491]} zoom={18} style={{ height: '1000px', width: '100%' }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -156,7 +156,7 @@ const IIITHLocation = () => {
             </Popup>
           </Marker>
         )}
-        {isAddingMarker && newMarkerPosition && (
+        {/* {isAddingMarker && newMarkerPosition && (
           <Marker
             position={newMarkerPosition}
             draggable={true}
@@ -170,7 +170,7 @@ const IIITHLocation = () => {
             <Popup>Drag and place this marker</Popup>
           </Marker>
           // datasimulation(markers[markers.length -1]);
-        )}
+        )} */}
       </MapContainer>
     </div>
   );

@@ -16,7 +16,7 @@ import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { ListItemButton } from "@mui/material";
-import { MapIcon } from '@mui/icons-material';
+import { Map } from '@mui/icons-material';
 import logo from '../../assets/images/teacher.png'
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import QuizIcon from '@mui/icons-material/Quiz';
@@ -145,7 +145,7 @@ const Navbar = (props) => {
                           <List>
                               <ListItem>
                                   <ListItemIcon>
-                                      <MapIcon />
+                                      <Map />
                                       <ListItemButton onClick={() => { setDrawer(false); navigate("map") }}>
                                           Map
                                       </ListItemButton>
