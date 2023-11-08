@@ -156,6 +156,15 @@ const Navbar = (props) => {
                               <ListItem>
                                   <ListItemIcon>
                                       <SummarizeIcon />
+                                      <ListItemButton onClick={() => { setDrawer(false); navigate("visualization") }}>
+                                          Visuaizations
+                                      </ListItemButton>
+                                  </ListItemIcon>
+                              </ListItem>
+                              <Divider />
+                              <ListItem>
+                                  <ListItemIcon>
+                                      <SummarizeIcon />
                                       <ListItemButton onClick={() => { setDrawer(false); navigate("simulation") }}>
                                           Simulation
                                       </ListItemButton>

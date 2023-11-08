@@ -37,10 +37,10 @@ function App() {
                 <Route path="" element={<SimulationPage />} />
                 <Route path="main/:indexname" element={<SimulationPageMain />} />
               </Route>
+              <Route path="visualization" element={<Dashboard />} />
             </Route>
             <Route exact path="/register" element={<Register />} />
             <Route path="/logout" element={<Logout />} />
-        <Route exact path="/dashboard" element={<Dashboard />} />
           </Routes>
         </Router>
         
