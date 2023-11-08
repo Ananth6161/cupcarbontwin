@@ -65,7 +65,7 @@ const Navbar = (props) => {
   const { SubMenu } = Menu;
   const location = useLocation();
   const [state, setState] = useState({})
-  const routes = ["/user/map", "/user/simulation", "/user/simulation/main", "/logout"]
+  const routes = ["/user/map", "/user/simulation", "/user/simulation/main", "/user/visualization", "/logout"]
   const theme = useTheme();
   const [value, setValue] = useState('2')
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
@@ -189,6 +189,8 @@ const Navbar = (props) => {
                               <Tab label="Map" value={routes[0]} component={Link} to={routes[0]} />
                               
                               <Tab label="Simulation" value={routes[1]} component={Link} to={routes[1]} />
+
+                              <Tab label="Visualisations" value={routes[3]} component={Link} to={routes[3]} />
                               
                               <Tab label="Log out" onClick={handleLogout} className="logout-tab"/>
                               
