@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
-import {Icon} from 'leaflet';
+import { Icon } from 'leaflet';
 import axios from "axios";
 import SensorPopup from './SensorPopup';
 import Pipe from './pipe';
-import DynamicPipes from './DynamicPipes'; 
+import DynamicPipes from './DynamicPipes';
 
 const IIITHLocation = () => {
   const [markers, setMarkers] = useState([]);
@@ -53,7 +53,7 @@ const IIITHLocation = () => {
   // const addMarker = () => {
   //   // Generate a unique ID for the new marker
   //   const markerId = markers.length + 1;
-  
+
   //   // Create a new marker object with an initial position
   //   const newMarker = {
   //     //timestamp: "2021-05-01T00:00:00.000Z",
@@ -66,14 +66,14 @@ const IIITHLocation = () => {
   //     value5: 0,
   //     value6: 0
   //   };
-  
+
   //   // Add the new marker to the markers array
   //   setMarkers([...markers, newMarker]);
-  
+
   //   // Enable marker placement mode
   //   setIsAddingMarker(true);
   // };
-  
+
   // const handleMapClick = (e) => {
   //   if (isAddingMarker) {
   //     setNewMarkerPosition(e.latlng);
@@ -91,16 +91,34 @@ const IIITHLocation = () => {
   };
   const dynamicPipeSize = 40;
   const pipeData = [
-    [[17.445793,78.351444], [17.445585517226135,78.35123061528631], [17.446997987595438,78.34955155849458],[17.447755394735346,78.34861823145404],[17.447095222471898,78.34800155182859],[17.447324,78.347749]], // Example pipe coordinates
+    {
+      id: 1,
+      coordinates : [[17.445793, 78.351444], [17.445585517226135, 78.35123061528631], [17.446997987595438, 78.34955155849458], [17.447755394735346, 78.34861823145404], [17.447095222471898, 78.34800155182859], [17.447324, 78.347749]],
+    },// Example pipe coordinates
     // Add more pipe coordinates as needed
-    [[17.446997987595438,78.34955155849458],[17.445570164227213,78.34830200159946],[17.44636851845649,78.34728828544641],[17.445073749898924,78.34603336564616],[17.444881,78.346202]],
-    [[17.445585517226135,78.35123061528631],[17.444730864986067,78.35042595712052],[17.444925337105342,78.3502379800931],[17.444689923460846,78.35000217802154],[ 17.444958,78.349694],[17.445016,78.349753],[ 17.445046,78.349719],[17.445544,78.349168],[17.445584,78.348997]],
-    [[17.444925337105342,78.3502379800931],[17.445191456511374,78.3504960085306],[17.445237515599914,78.35054377393108],[17.445482,78.3503],[17.445518,78.350403],[17.446348047878896,78.34952430616724],[17.446267,78.349436]],
-    [[17.444730864986067,78.35042595712052],[17.443129,78.348927],[17.443482144331,78.34855901016505],[17.443299,78.348365]],
-    [[17.444787159568243,78.34987352212234],[17.445104455979063,78.35021149728311],[17.445369,78.349937]]
-    
+    {
+      id: 2,
+     coordinates : [[17.446997987595438, 78.34955155849458], [17.445570164227213, 78.34830200159946], [17.44636851845649, 78.34728828544641], [17.445073749898924, 78.34603336564616], [17.444881, 78.346202]],
+    },
+    {
+      id : 3,
+    coordinates : [[17.445585517226135, 78.35123061528631], [17.444730864986067, 78.35042595712052], [17.444925337105342, 78.3502379800931], [17.444689923460846, 78.35000217802154], [17.444958, 78.349694], [17.445016, 78.349753], [17.445046, 78.349719], [17.445544, 78.349168], [17.445584, 78.348997]],
+    },
+    {
+      id : 4,
+    coordinates : [[17.444925337105342, 78.3502379800931], [17.445191456511374, 78.3504960085306], [17.445237515599914, 78.35054377393108], [17.445482, 78.3503], [17.445518, 78.350403], [17.446348047878896, 78.34952430616724], [17.446267, 78.349436]],
+    },
+    {
+      id : 5,
+    coordinates:[[17.444730864986067, 78.35042595712052], [17.443129, 78.348927], [17.443482144331, 78.34855901016505], [17.443299, 78.348365]],
+    },
+    {
+      id : 6,
+    coordinates : [[17.444787159568243, 78.34987352212234], [17.445104455979063, 78.35021149728311], [17.445369, 78.349937]]
+    },
+
   ];
-  
+
   return (
     <div>
       {/* <button onClick={addMarker}>Add Marker</button> */}
@@ -109,9 +127,9 @@ const IIITHLocation = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        
+
         {pipeData.map((pipe) => (
-          <Pipe points={pipe} color="blue" />
+          <Pipe id = {pipe.id} points={pipe.coordinates} color="blue" />
         ))}
 
         {markers.map((marker) => {
@@ -145,7 +163,7 @@ const IIITHLocation = () => {
                 <SensorPopup markers={markers.filter((m) => m.position[0] === marker.position[0] && m.position[1] === marker.position[1])} />
               </Popup>
             </Marker>
-            
+
           );
         })}
 
