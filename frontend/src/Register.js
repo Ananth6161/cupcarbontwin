@@ -106,7 +106,7 @@ const Register = () => {
                 }
                 Swal.fire({
                     title: "Please Wait",
-                    text: "Regetering",
+                    text: "Registering",
                     backdrop: "true",
                     position: "center",
                     allowOutsideClick: false,

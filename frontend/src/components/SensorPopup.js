@@ -1,32 +1,30 @@
 import React from 'react';
 
-const SensorPopup = ({ sensor }) => {
+const SensorPopup = ({ markers }) => {
   // Check if sensor is null or undefined before accessing its properties
-  if (!sensor) {
+  if (!markers) {
     return null; // Return null if sensor is not available
   }
 
   return (
-    <div className="sensor-popup">
-      <h2>Sensor Data</h2>
-      <p>ID: {sensor.id}</p>
-      <div>
-        <strong>Data:</strong>
-        <ul>
-          {Object.keys(sensor).map((key, index) => {
-            // Check if the property starts with 'value' before rendering it
-            if (key.startsWith('value')) {
-              return (
-                <li key={index}>
-                  Label: {key}, Value: {sensor[key]}
+    <div>
+      {markers.map((marker) => (
+        <div key={marker.id}>
+          {/* <h2>Sensor Data</h2> */}
+          <p>ID: {marker.id}</p>
+          <div>
+            <strong>Data:</strong>
+            <ul> 
+              {Object.keys(marker).map(key => (
+                <li key={key}>
+                  {key} : {marker[key]}
                 </li>
-              );
-            }
-            return null;
-          })}
-        </ul>
-      </div>
-    </div>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))}
+    </div>  
   );
 };
 

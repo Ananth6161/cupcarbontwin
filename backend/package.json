@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +23,7 @@
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.6.3",
+    "sweetalert2": "^11.3.0",
     "winston": "^3.10.0"
   },
   "devDependencies": {

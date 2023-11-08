@@ -27,10 +27,10 @@ import PersonIcon from '@mui/icons-material/Person';
 import Swal from "sweetalert2";
 
 const Login = () => {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    
+    // const [role, setRole] = useState("");
     const [values, setValues] = useState({
         amount: '',
         password: '',
@@ -38,7 +38,7 @@ const Login = () => {
         weightRange: '',
         showPassword: false,
     });
-    const navigate = useNavigate();
+    
     const onChangeEmail = (event) => {
         setEmail(event.target.value);
     };
@@ -60,7 +60,13 @@ const Login = () => {
     };
 
     const CheckInputs = () => {
-
+        // if (role == "") {
+        //     Swal.fire({
+        //         icon: 'warning',
+        //         text: 'Please Select Role'
+        //     })
+        //     return false
+        // }
         if (email == "") {
             Swal.fire({
                 icon: 'warning',
@@ -79,6 +85,7 @@ const Login = () => {
             return true
         }
     }
+    
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
     };
@@ -86,10 +93,12 @@ const Login = () => {
     const onSubmit = async (event) => {
 
         event.preventDefault();
+        
         // navigate('/map');
         if (CheckInputs()) {
             try {
                 const loginResponse = await axios.post("http://localhost:4000/login", {
+                    // role: role,
                     email: email,
                     password: password
                 })
@@ -100,14 +109,18 @@ const Login = () => {
                     const res = await axios.get("http://localhost:4000/login/isUserAuth", {
                         headers: {
                             "x-access-token": localStorage.getItem("token"),
-                           
+                            // "role": role,
                         }
                     })
-
-                   
-                        navigate('/map')
-                    
-
+                        console.log("You have successfully logged in");
+                        localStorage.setItem("email",email);
+                        // if (role == "user") {
+                        //     navigate('/user/map');
+                        // }
+                        // else if(role == "Admin") {
+                        //     navigate('/admin/map')
+                        // }
+                        navigate('/user/map');
                 }
                 catch (err) {
                     Swal.fire({
@@ -123,7 +136,6 @@ const Login = () => {
                 })
             }
         }
-
     };
 
     const onRegister = async (event) =>{
