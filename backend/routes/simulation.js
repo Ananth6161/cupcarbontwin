@@ -115,7 +115,7 @@ router.post('/updateSensorData', async (req, res) => {
     pressure: sensor.pressure,
     pressurevoltage: sensor.pressurevoltage,
     timestamp: timestampDate,
-    location: { lat: sensor.position[0], lon: sensor.position[1] },
+    location: `${sensor.position[0]},${sensor.position[1]}`,
     versioninfo: 'Some version info',
   }));
   

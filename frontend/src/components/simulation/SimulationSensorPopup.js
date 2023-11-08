@@ -3,12 +3,13 @@ import './SimulationSensorPopup.css';
 
 const SimulationSensorPopup = ({ markers, onSensorDataChange }) => {
   // Create a state to manage form inputs for each marker
-  const [formData, setFormData] = useState(markers.map((marker) => ({ ...marker })));
+  const [popupformData, setpopupFormData] = useState(markers.map((marker) => ({ ...marker })));
 
   // Handle form input changes for a specific marker
   const handleInputChange = (e, markerId) => {
+    e.preventDefault();
     const { name, value } = e.target;
-    setFormData((prevData) =>
+    setpopupFormData((prevData) =>
       prevData.map((marker) =>
         marker.id === markerId ? { ...marker, [name]: value } : marker
       )
@@ -16,12 +17,9 @@ const SimulationSensorPopup = ({ markers, onSensorDataChange }) => {
   };
 
   // Handle OK button click
-  const handleOKClick = (markerId) => {
-    // Create a callback function that includes the ID
-    return () => {
-      // Call the parent component's function to update data for the specific marker
-      onSensorDataChange(formData, markerId);
-    };
+  const handleOKClick = (e, markerId) => {
+    e.preventDefault();
+    onSensorDataChange(popupformData, markerId);
   };
 
   if (!markers) {
@@ -39,7 +37,7 @@ const SimulationSensorPopup = ({ markers, onSensorDataChange }) => {
               <input
                 type="text"
                 name="flowrate"
-                value={formData.find((data) => data.id === marker.id).flowrate}
+                value={popupformData.find((data) => data.id === marker.id).flowrate}
                 onChange={(e) => handleInputChange(e, marker.id)}
               />
             </div>
@@ -48,16 +46,16 @@ const SimulationSensorPopup = ({ markers, onSensorDataChange }) => {
               <input
                 type="text"
                 name="totalflow"
-                value={formData.find((data) => data.id === marker.id).totalflow}
+                value={popupformData.find((data) => data.id === marker.id).totalflow}
                 onChange={(e) => handleInputChange(e, marker.id)}
               />
             </div>
-            <div className="form-field">
+            {/* <div className="form-field">
               <label>Pressure:</label>
               <input
                 type="text"
                 name="pressure"
-                value={formData.find((data) => data.id === marker.id).pressure}
+                value={popupformData.find((data) => data.id === marker.id).pressure}
                 onChange={(e) => handleInputChange(e, marker.id)}
               />
             </div>
@@ -66,11 +64,11 @@ const SimulationSensorPopup = ({ markers, onSensorDataChange }) => {
               <input
                 type="text"
                 name="pressurevoltage"
-                value={formData.find((data) => data.id === marker.id).pressurevoltage}
+                value={popupformData.find((data) => data.id === marker.id).pressurevoltage}
                 onChange={(e) => handleInputChange(e, marker.id)}
               />
-            </div>
-            <button onClick={handleOKClick(marker.id)}>Ok</button>
+            </div> */}
+            <button onClick={(e) => handleOKClick(e, marker.id)}>Ok</button>
           </form>
         </div>
       ))}
