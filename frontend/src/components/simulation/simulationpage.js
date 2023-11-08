@@ -151,7 +151,7 @@ const SimulationPageMain = () => {
         console.log("Updated Sensor Data:", updatedData);
         console.log("New Sensor Data:", sensorData);
         // Update the graph with the new values
-        updateSensorBasedOnGraph(graph, changedSensor);
+        updateSensorBasedOnGraph(graph, changedSensor, formDataSensor);
 
         // setGraph(updatedGraph);
         console.log("after graph Sensor Data:", sensorData);
@@ -163,11 +163,12 @@ const SimulationPageMain = () => {
   };
   
   
-  function updateSensorBasedOnGraph(graph, changedSensor) {
-    console.log('hi');
+  function updateSensorBasedOnGraph(graph, changedSensor, formDataSensor) {
+    // console.log('hi');
     const { id, flowrate, totalflow } = changedSensor;
-    const newData = sensorData.find((sensor) => sensor.id === id);
-    console.log('new data of sensor in graph:', newData);
+    // const newData = sensorData.find((sensor) => sensor.id === id);
+    // console.log('new data of sensor in graph:', newData);
+    const newData = formDataSensor;
     var ratio = 1;
     if (flowrate !== 0) {
      ratio = newData.flowrate / flowrate;
@@ -176,13 +177,9 @@ const SimulationPageMain = () => {
     
     // Determine the neighbors of the changed sensor in the graph
 
-    console.log('id :',id);
+    // console.log('id :',id);
     const neighbors = graph.getNeighbors(id);
-    console.log('neibhours:',neighbors);
-
-  
-  
-    // Create a set to keep track of visited nodes
+    // console.log('neibhours:',neighbors);
     const visited = new Set();
   
     // Depth-first traversal function
@@ -192,7 +189,7 @@ const SimulationPageMain = () => {
       // Update the values of the neighboring nodes in the graph
       neighbors.forEach((neighbor) => {
         const neighborId = neighbor.id;
-        console.log('neibhour:',neighborId);
+        console.log('neibhours id:',neighborId);
         if (!visited.has(neighborId)) {
           const neighborData = sensorData.find((sensor) => sensor.id === neighborId);
     
@@ -206,7 +203,7 @@ const SimulationPageMain = () => {
             {
               neighborData.flowrate = flowrate;
             }
-            neighborData.totalflow = totalflow;
+            neighborData.totalflow = newData.totalflow;
     
             const newsensorData = sensorData.map((sensor) => {
               if (sensor.id === neighborId) {
