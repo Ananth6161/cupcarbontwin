@@ -5,7 +5,7 @@ const  elasticClient  = require("../../middleware/elasticsearch-client");
 // Get all nodes
 router.get("/", async (req, res) => {
   const indexname = req.query.indexname;
-  console.log(indexname);
+  // console.log(indexname);
     try {
       const  body  = await elasticClient.search({
         index: indexname, // Replace with your Elasticsearch index name

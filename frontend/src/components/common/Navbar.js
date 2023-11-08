@@ -91,6 +91,7 @@ const Navbar = (props) => {
   }));
 
   const navigate = useNavigate();
+  
   const handleDrawerOpen = () => {
       setDrawer(true);
   };
@@ -175,13 +176,13 @@ const Navbar = (props) => {
                   </> :
                       <>
                           <img src={logo} style={{ "height": "45px", "width": "45px" }}></img>
-                          <Tabs value={'/user/' + location.pathname.split('/')[2]} textColor="secondary" indicatorColor="secondary" variant="scrollable" scrollButtons allowScrollButtonsMobile aria-label="scrollable force tabs example">
+                          <Tabs value={'/user/' + location.pathname.split('/')[2]} textcolor="secondary" indicatorcolor="secondary" variant="scrollable" scrollButtons allowScrollButtonsMobile aria-label="scrollable force tabs example">
                               <Tab label="Map" value={routes[0]} component={Link} to={routes[0]} />
-                              <Divider/>
+                              
                               <Tab label="Simulation" value={routes[1]} component={Link} to={routes[1]} />
-                              <Divider/>
+                              
                               <Tab label="Log out" onClick={handleLogout} className="logout-tab"/>
-                              <Divider/>
+                              
                           </Tabs>
                       </>
                   }

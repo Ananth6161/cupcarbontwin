@@ -27,8 +27,8 @@ const IIITHLocation = () => {
             position: [lat, lon],
             flowrate: hit.latest_data.flowrate,
             totalflow: hit.latest_data.totalflow,
-            pressure: hit.latest_data.pressure,
-            pressurevoltage: hit.latest_data.pressurevoltage,
+            // pressure: hit.latest_data.pressure,
+            // pressurevoltage: hit.latest_data.pressurevoltage,
           };
         });
         setMarkers(markersData);

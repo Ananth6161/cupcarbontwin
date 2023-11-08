@@ -8,11 +8,6 @@
     background-color: white;
   }
   
-  .sensor-form:active,
-  .sensor-form:focus {
-    background-color: blue;
-  }
-  
   .form-field {
     margin-bottom: 10px;
   }
