@@ -50,6 +50,10 @@ const SimulationSensorPopup = ({ markers, onSensorDataChange }) => {
                 onChange={(e) => handleInputChange(e, marker.id)}
               />
             </div>
+            <div>
+              <li key={marker.id}>
+                Location: lat:{popupformData.find((data) => data.id === marker.id).position[0]}, lon:{popupformData.find((data) => data.id === marker.id).position[1]}              </li>
+            </div>
             {/* <div className="form-field">
               <label>Pressure:</label>
               <input

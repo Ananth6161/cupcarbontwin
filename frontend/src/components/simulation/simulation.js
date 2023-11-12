@@ -51,7 +51,7 @@ const SimulationPage = () => {
     // You can use the selectedIndex to fetch the data
   };
   const handleSubmit = (e) => {
-    console.log(e);
+    // console.log(e);
     e.preventDefault(); // Prevent the default form submission behavior
     if(choice === 'view' && availableIndexes.length === 0)
     {

@@ -24,7 +24,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import LogoutIcon from '@mui/icons-material/Logout';
-import "./Navbar.css"
+// import "./Navbar.css"
 
 // function Navbar() {
 //   const [authenticated, setAuthenticated] = useState(false); // Initialize with false for unauthenticated state
@@ -155,7 +155,7 @@ const Navbar = (props) => {
                               <Divider />
                               <ListItem>
                                   <ListItemIcon>
-                                      <SummarizeIcon />
+                                      <DashboardIcon />
                                       <ListItemButton onClick={() => { setDrawer(false); navigate("visualization") }}>
                                           Visuaizations
                                       </ListItemButton>
@@ -185,14 +185,14 @@ const Navbar = (props) => {
                   </> :
                       <>
                           <img src={logo} style={{ "height": "45px", "width": "45px" }}></img>
-                          <Tabs value={'/user/' + location.pathname.split('/')[2]} textcolor="secondary" indicatorcolor="secondary" variant="scrollable" scrollButtons allowScrollButtonsMobile aria-label="scrollable force tabs example">
+                          <Tabs value={'/user/' + location.pathname.split('/')[2]} variant="scrollable" scrollButtons allowScrollButtonsMobile aria-label="scrollable force tabs example">
                               <Tab label="Map" value={routes[0]} component={Link} to={routes[0]} />
                               
                               <Tab label="Simulation" value={routes[1]} component={Link} to={routes[1]} />
 
                               <Tab label="Visualisations" value={routes[3]} component={Link} to={routes[3]} />
                               
-                              <Tab label="Log out" onClick={handleLogout} className="logout-tab"/>
+                              <Tab label="Log out" onClick={handleLogout}/>
                               
                           </Tabs>
                       </>

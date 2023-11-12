@@ -16,7 +16,7 @@ const IIITHLocation = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const indexname = "finaltempdata1";
+        const indexname = "finaldata";
         const response = await axios.get('http://localhost:4000/latestdata', { params: { indexname } });
         const data = response.data;
         const markersData = data.map((hit) => {
@@ -129,7 +129,7 @@ const IIITHLocation = () => {
         />
 
         {pipeData.map((pipe) => (
-          <Pipe id = {pipe.id} points={pipe.coordinates} color="blue" />
+          <Pipe key = {pipe.id} points={pipe.coordinates} color="blue" />
         ))}
 
         {markers.map((marker) => {

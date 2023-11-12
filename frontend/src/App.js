@@ -15,7 +15,9 @@ import Dashboard from './components/VisualizationDashboard';
 const Layout = () => {
   return (
     <div>
-      <Navbar />
+      <div className="navbar">
+        <Navbar />
+      </div>
       <div className="container">
         <Outlet />
       </div>

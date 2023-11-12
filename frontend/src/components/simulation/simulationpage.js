@@ -45,26 +45,30 @@ const SimulationPageMain = () => {
   useEffect(() => {
     
     if (initialIndexName === ":") {
-      indextosend = "finaltempdata1";
+      indextosend = "finaldata";
     }
 
     const createGraphComponent = async (data) => {
         const graphComponent = new GraphComputationComponent({ initialNodes: data });
-        graphComponent.addEdge("WM-WF-PH01-00", "WM-WF-PH03-70", 1);
-        graphComponent.addEdge("WM-WF-PH03-70", "WM-WF-PH03-02", 1);
-        graphComponent.addEdge("WM-WF-PH03-70", "WM-WF-PH03-03", 1);
-        graphComponent.addEdge("WM-WF-PH03-70", "WM-WF-PH03-00", 1);
-        graphComponent.addEdge("WM-WF-PH03-70", "WM-WF-PH03-01", 1);
-        graphComponent.addEdge("WM-WF-VN04-71", "WM-WF-VN04-70", 1);
-        graphComponent.addEdge("WM-WF-VN04-70", "WM-WF-PH02-70", 1);
-        graphComponent.addEdge("WM-WF-KB04-70", "WM-WF-KB04-73", 1);
-        graphComponent.addEdge("WM-WF-KB04-70", "WM-WF-PH04-70", 1);
-        graphComponent.addEdge("WM-WF-KB04-70", "WM-WF-PH04-71", 1);
-        graphComponent.addEdge("WM-WF-KB04-73", "WM-WF-KB04-72", 1);
-        graphComponent.addEdge("WM-WF-PH04-70", "WM-WF-KB04-72", 1);
-        graphComponent.addEdge("WM-WF-KB04-72", "WM-WF-PH04-71", 1);
-        graphComponent.addEdge("WM-WF-KB04-72", "WM-WF-BB04-71", 1);
-        graphComponent.addEdge("WM-WF-BB04-71", "WM-WF-BB04-70", 1);
+        // graphComponent.addEdge("WM-WF-PH01-00", "WM-WF-PH03-70",0);
+        // graphComponent.addEdge("WM-WF-PH01-00", "WM-WF-PR00-70",0);
+        // graphComponent.addEdge("WM-WF-PH01-00", "WM-WF-KB04-70",0);
+        // graphComponent.addEdge("WM-WF-PH01-00", "WM-WF-VN01-00",0);
+        // graphComponent.addEdge("WM-WF-PH01-00", "WM-WF-VN04-71",0);
+        graphComponent.addEdge("WM-WF-PH03-70", "WM-WF-PH03-02",1);
+        graphComponent.addEdge("WM-WF-PH03-70", "WM-WF-PH03-03",1);
+        graphComponent.addEdge("WM-WF-PH03-70", "WM-WF-PH03-00",1);
+        // graphComponent.addEdge("WM-WF-PH03-70", "WM-WF-PH03-01",1);
+        // graphComponent.addEdge("WM-WF-VN04-71", "WM-WF-VN04-70",1);
+        // graphComponent.addEdge("WM-WF-VN04-70", "WM-WF-PH02-70",1);
+        graphComponent.addEdge("WM-WF-KB04-70", "WM-WF-KB04-73",1);
+        graphComponent.addEdge("WM-WF-KB04-70", "WM-WF-PH04-70",1);
+        graphComponent.addEdge("WM-WF-KB04-70", "WM-WF-PH04-71",1);
+        graphComponent.addEdge("WM-WF-KB04-73", "WM-WF-KB04-72",1);
+        graphComponent.addEdge("WM-WF-PH04-70", "WM-WF-KB04-72",1);
+        graphComponent.addEdge("WM-WF-KB04-72", "WM-WF-PH04-71",1);
+        graphComponent.addEdge("WM-WF-KB04-72", "WM-WF-BB04-71",1);
+        graphComponent.addEdge("WM-WF-BB04-71", "WM-WF-BB04-70",1);
 
         return graphComponent;
       };
@@ -88,10 +92,14 @@ const SimulationPageMain = () => {
             };
         });
       
-        setSensorData(markersData);
+        setSensorData(prevData => {
+          return markersData;
+        });
 
         const graphComponent = await createGraphComponent(markersData);
+        console.log('Graph Component:', graphComponent)
         setGraph(graphComponent);
+        console.log('Graph:', graph)
       } catch (error) {
         console.error('Error fetching data from Elasticsearch:', error);
       }
@@ -121,7 +129,8 @@ const SimulationPageMain = () => {
     }
   };
 
-  const handleMarkerClick = (sensor) => {
+  const handleMarkerClick = (e,sensor) => {
+    e.preventDefault();
     setSelectedSensor(sensor);
   };
 
@@ -138,8 +147,7 @@ const SimulationPageMain = () => {
       const changedSensor = sensorData.find((sensor) => sensor.id === markerId);
       const formDataSensor = popupformData.find((sensor) => sensor.id === markerId);
   
-      if (formDataSensor) {
-        // Update the sensorData for the specific sensor with the matching markerId
+      
         const updatedData = sensorData.map((sensor) => {
           if (sensor.id === markerId) {
             return { ...sensor, ...formDataSensor }; // Merge the formDataSensor data into the sensorData
@@ -147,7 +155,9 @@ const SimulationPageMain = () => {
           return sensor;
         });
   
-        setSensorData(updatedData);
+        setSensorData(prevData => {
+          return updatedData;
+        });
         console.log("Updated Sensor Data:", updatedData);
         console.log("New Sensor Data:", sensorData);
         // Update the graph with the new values
@@ -155,10 +165,6 @@ const SimulationPageMain = () => {
 
         // setGraph(updatedGraph);
         console.log("after graph Sensor Data:", sensorData);
-      } else {
-        // Handle the case where no matching sensor is found in formData
-        console.log(`Sensor with ID ${markerId} not found in formData.`);
-      }
     }
   };
   
@@ -170,8 +176,8 @@ const SimulationPageMain = () => {
     // console.log('new data of sensor in graph:', newData);
     const newData = formDataSensor;
     var ratio = 1;
-    if (flowrate !== 0) {
-     ratio = newData.flowrate / flowrate;
+    if (totalflow !== 0) {
+     ratio = newData.totalflow / totalflow;
     }
     
     
@@ -193,17 +199,10 @@ const SimulationPageMain = () => {
         if (!visited.has(neighborId)) {
           const neighborData = sensorData.find((sensor) => sensor.id === neighborId);
     
-          if (neighborData) {
+          
             // Check if flowrate is zero for the neighbor before calculation
-            if (neighborData.flowrate !== 0) {
-              // Handle the case where neighbor's flowrate is zero
-              neighborData.flowrate *= ratio;
-            }
-            else
-            {
-              neighborData.flowrate = flowrate;
-            }
-            neighborData.totalflow = newData.totalflow;
+            neighborData.flowrate *= ratio;
+            neighborData.totalflow *= ratio;
     
             const newsensorData = sensorData.map((sensor) => {
               if (sensor.id === neighborId) {
@@ -211,10 +210,10 @@ const SimulationPageMain = () => {
               }
               return sensor;
             });
-    
-            setSensorData(newsensorData);
-            traverse(neighborId);
-          }
+            setSensorData(prevData => {
+              return newsensorData;
+            });
+          traverse(neighborId);
         }
       });
     };
@@ -466,7 +465,7 @@ const SimulationPageMain = () => {
               position={sensor.position}
               draggable={true ? sensor.id[0] != 'W' : false}
               icon={new Icon({ iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41] })}
-              onClick={() => handleMarkerClick(sensor)}
+              onClick={(e) => handleMarkerClick(e,sensor)}
               eventHandlers={{
                 dragend: (e) => {
                   const updatedPosition = e.target.getLatLng(); // Get the updated position
@@ -476,7 +475,9 @@ const SimulationPageMain = () => {
                     }
                     return m;
                   });
-                  setSensorData(updatedMarkers); // Update the markers array with the new position
+                  setSensorData(prevData => {
+                    return updatedMarkers;
+                  }); // Update the markers array with the new position
                 }
               }}
             >
@@ -486,7 +487,7 @@ const SimulationPageMain = () => {
             </Marker>
           );
         })}
-        {selectedSensor && (
+        {/* {selectedSensor && (
           <Marker position={selectedSensor.position}>
             <Popup>
               <SimulationSensorPopup markers={sensorData.filter((m) => m.position[0] === selectedSensor.position[0] && m.position[1] === selectedSensor.position[1])} onSensorDataChange={handleSensorDataChange} />
@@ -505,7 +506,7 @@ const SimulationPageMain = () => {
           >
             <Popup>Drag and place this marker</Popup>
           </Marker>
-        )}
+        )} */}
       </MapContainer>
     </div>
   );

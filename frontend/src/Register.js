@@ -195,7 +195,7 @@ const Register = () => {
                         <br></br>
                         <div align="center">
                             <TextField sx={{ m: 1, width: '40ch' }}
-                                id="input-with-icon-textfield"
+                                id="name-with-icon-textfield"
                                 label="Name"
                                 size='small'
                                 InputProps={{
@@ -213,7 +213,7 @@ const Register = () => {
 
                         <div align="center">
                             <TextField sx={{ m: 1, width: '40ch' }}
-                                id="input-with-icon-textfield"
+                                id="email-with-icon-textfield"
                                 label="Email"
                                 size='small'
                                 InputProps={{
