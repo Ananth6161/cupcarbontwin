@@ -3,28 +3,30 @@ const router = express.Router();
 const  elasticClient  = require("../../middleware/elasticsearch-client");
 
 // Get all nodes
-router.get("/", async (req, res) => {
-  const indexname = req.query.indexname;
-  // console.log(indexname);
+router.post("/getlastn", async (req, res) => {
+    const index = req.body.index;
+    const node_id = req.body.node_id;
+    const size = req.body.size;
     try {
       const  body  = await elasticClient.search({
-        index: indexname, // Replace with your Elasticsearch index name
+        index: index, // Replace with your Elasticsearch index name
         size: 0,
         body: {
           aggs: {
             sensors: {
-              terms: {
-                field: "sensorid", // Assuming 'sensor_id' is a keyword field
-                size: 10000, // Adjust as needed
-              },
+                query: {
+                    term: {
+                      node_id: node_id, // Filter by the specific node_id
+                    },
+                  },
               aggs: {
                 latest_timestamp: {
                   max: { field: "timestamp" }, // Aggregating the max timestamp
                 },
                 latest_data: {
                   top_hits: {
-                    size: 1, // Retrieve only the latest document for each sensor
-                    _source: ["timestamp", "sensorid", "flowrate", "totalflow", "pressure", "pressurevoltage", "location", "versioninfo"], // Specify the fields you want to retrieve
+                    size: size, // Retrieve only the latest document for each sensor
+                    _source: ["timestamp", "node_id", "value1", "value2", "value3", "value4", "value5", "value6", "Coordinates", "version"], // Specify the fields you want to retrieve
                     sort: [
                       {
                         timestamp: { order: "desc" }, // Sort by timestamp in descending order

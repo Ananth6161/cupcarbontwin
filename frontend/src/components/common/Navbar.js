@@ -65,7 +65,7 @@ const Navbar = (props) => {
   const { SubMenu } = Menu;
   const location = useLocation();
   const [state, setState] = useState({})
-  const routes = ["/user/map", "/user/simulation", "/user/simulation/main", "/logout"]
+  const routes = ["/user/map", "/user/simulation", "/user/simulation/main", "/user/visualization", "/logout"]
   const theme = useTheme();
   const [value, setValue] = useState('2')
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
@@ -91,6 +91,7 @@ const Navbar = (props) => {
   }));
 
   const navigate = useNavigate();
+  
   const handleDrawerOpen = () => {
       setDrawer(true);
   };
@@ -155,6 +156,15 @@ const Navbar = (props) => {
                               <ListItem>
                                   <ListItemIcon>
                                       <SummarizeIcon />
+                                      <ListItemButton onClick={() => { setDrawer(false); navigate("visualization") }}>
+                                          Visuaizations
+                                      </ListItemButton>
+                                  </ListItemIcon>
+                              </ListItem>
+                              <Divider />
+                              <ListItem>
+                                  <ListItemIcon>
+                                      <SummarizeIcon />
                                       <ListItemButton onClick={() => { setDrawer(false); navigate("simulation") }}>
                                           Simulation
                                       </ListItemButton>
@@ -175,13 +185,15 @@ const Navbar = (props) => {
                   </> :
                       <>
                           <img src={logo} style={{ "height": "45px", "width": "45px" }}></img>
-                          <Tabs value={'/user/' + location.pathname.split('/')[2]} textColor="secondary" indicatorColor="secondary" variant="scrollable" scrollButtons allowScrollButtonsMobile aria-label="scrollable force tabs example">
+                          <Tabs value={'/user/' + location.pathname.split('/')[2]} textcolor="secondary" indicatorcolor="secondary" variant="scrollable" scrollButtons allowScrollButtonsMobile aria-label="scrollable force tabs example">
                               <Tab label="Map" value={routes[0]} component={Link} to={routes[0]} />
-                              <Divider/>
+                              
                               <Tab label="Simulation" value={routes[1]} component={Link} to={routes[1]} />
-                              <Divider/>
+
+                              <Tab label="Visualisations" value={routes[3]} component={Link} to={routes[3]} />
+                              
                               <Tab label="Log out" onClick={handleLogout} className="logout-tab"/>
-                              <Divider/>
+                              
                           </Tabs>
                       </>
                   }
