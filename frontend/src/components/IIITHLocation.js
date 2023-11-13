@@ -126,83 +126,7 @@ const IIITHLocation = () => {
     },
 
   ];
-
-  function processSensorData(pipeData, latitude, longitude, markerData) {
-    const thresholdDistance = 0.0001; // Adjust this threshold as needed
   
-    // Initialize variables
-    let pipeIds = [];
-    let val = 0;
-    let val2 = 0;
-    let cnt = 0;
-  
-    // Check distance for each pipe
-    for (const pipe of pipeData) {
-      const coordinates = pipe.coordinates;
-  
-      for (let i = 0; i < coordinates.length - 1; i++) {
-        const point1 = coordinates[i];
-        const point2 = coordinates[i + 1];
-  
-        // Calculate perpendicular distance using the formula
-        const distance = pointToLineDistance(latitude, longitude, point1[0], point1[1], point2[0], point2[1]);
-  
-        if (distance < thresholdDistance) {
-          // If within threshold, add pipe ID to the list
-          pipeIds.push(pipe.id);
-  
-          // Search for matching sensor in markerData
-          const matchingSensor = markerData.find(sensor => sensor.id === pipe.sensors[0]);
-  
-          if (matchingSensor) {
-            // Add data to variables
-            val += matchingSensor.totalflow;
-            val2 += matchingSensor.flowrate;
-            cnt++;
-          }
-  
-          break; // No need to check other points of the same pipe
-        }
-      }
-    }
-  
-    if (pipeIds.length === 0) {
-      // If no pipes are close, display an alert
-      alert("Please select on the map.");
-    }
-  
-    return { val, val2, cnt, pipeIds };
-  }
-  
-  // Function to calculate perpendicular distance from a point to a line
-  function pointToLineDistance(x, y, x1, y1, x2, y2) {
-    const A = x - x1;
-    const B = y - y1;
-    const C = x2 - x1;
-    const D = y2 - y1;
-  
-    const dot = A * C + B * D;
-    const len_sq = C * C + D * D;
-    const param = dot / len_sq;
-  
-    let xx, yy;
-  
-    if (param < 0 || (x1 === x2 && y1 === y2)) {
-      xx = x1;
-      yy = y1;
-    } else if (param > 1) {
-      xx = x2;
-      yy = y2;
-    } else {
-      xx = x1 + param * C;
-      yy = y1 + param * D;
-    }
-  
-    const dx = x - xx;
-    const dy = y - yy;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
   return (
     <div>
       {/* <button onClick={addMarker}>Add Marker</button> */}
@@ -223,7 +147,7 @@ const IIITHLocation = () => {
 
             <Marker
               position={marker.position}
-              draggable={false}
+              draggable={true ? marker.id[0] != 'W' : false}
               icon={new Icon({
                 iconUrl: markerIconPng,
                 iconSize: [25, 41],

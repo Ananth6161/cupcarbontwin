@@ -21,6 +21,13 @@ const SimulationPageMain = () => {
   const [email, setEmail] = useState(null);
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);
   const [simulationInterval, setSimulationInterval] = useState(null);
+  const [rerenderKey, setRerenderKey] = useState(0);
+
+  // Whenever you want to force a re-render, update the rerenderKey
+  useEffect(() => {
+    setRerenderKey((prevKey) => prevKey + 1);
+  }, [sensorData]);
+
   const [formData, setFormData] = useState({
     filename: initialIndexName,
   });
@@ -148,28 +155,27 @@ const SimulationPageMain = () => {
       const formDataSensor = popupformData.find((sensor) => sensor.id === markerId);
   
       
-        const updatedData = sensorData.map((sensor) => {
+        var updatedData = sensorData.map((sensor) => {
           if (sensor.id === markerId) {
             return { ...sensor, ...formDataSensor }; // Merge the formDataSensor data into the sensorData
           }
           return sensor;
         });
-  
+          
+      // Update the graph with the new values
+        const sesnordataaftergraph = updateSensorBasedOnGraph(updatedData, graph, changedSensor, formDataSensor);
+
         setSensorData(prevData => {
           return updatedData;
         });
-        console.log("Updated Sensor Data:", updatedData);
-        console.log("New Sensor Data:", sensorData);
-        // Update the graph with the new values
-        updateSensorBasedOnGraph(graph, changedSensor, formDataSensor);
-
-        // setGraph(updatedGraph);
-        console.log("after graph Sensor Data:", sensorData);
+        console.log("after graph Sensor Data:", updatedData);
+        console.log("after graph e Sensor Data:", sensorData);
     }
   };
   
   
-  function updateSensorBasedOnGraph(graph, changedSensor, formDataSensor) {
+  function updateSensorBasedOnGraph(updatedData, graph, changedSensor, formDataSensor) {
+    // console.log("New Sensor Data:", sensorData);
     // console.log('hi');
     const { id, flowrate, totalflow } = changedSensor;
     // const newData = sensorData.find((sensor) => sensor.id === id);
@@ -197,21 +203,18 @@ const SimulationPageMain = () => {
         const neighborId = neighbor.id;
         console.log('neibhours id:',neighborId);
         if (!visited.has(neighborId)) {
-          const neighborData = sensorData.find((sensor) => sensor.id === neighborId);
+          const neighborData = updatedData.find((sensor) => sensor.id === neighborId);
     
           
             // Check if flowrate is zero for the neighbor before calculation
-            neighborData.flowrate *= ratio;
-            neighborData.totalflow *= ratio;
+            neighborData.flowrate *= 1 + ratio;
+            neighborData.totalflow *= 1 + ratio;
     
-            const newsensorData = sensorData.map((sensor) => {
+            updatedData = updatedData.map((sensor) => {
               if (sensor.id === neighborId) {
                 return { ...sensor, ...neighborData };
               }
               return sensor;
-            });
-            setSensorData(prevData => {
-              return newsensorData;
             });
           traverse(neighborId);
         }
@@ -220,6 +223,7 @@ const SimulationPageMain = () => {
     
     // Start the traversal from the changedSensor node
     traverse(id);
+    return updatedData;
   }
   
   const handleFileNameChange = (e) => {
@@ -414,15 +418,116 @@ const SimulationPageMain = () => {
 
   const dynamicPipeSize = 40;
   const pipeData = [
-    [[17.445793,78.351444], [17.445585517226135,78.35123061528631], [17.446997987595438,78.34955155849458],[17.447755394735346,78.34861823145404],[17.447095222471898,78.34800155182859],[17.447324,78.347749]], // Example pipe coordinates
+    {
+      id: 1,
+      coordinates : [[17.445793, 78.351444], [17.445585517226135, 78.35123061528631], [17.446997987595438, 78.34955155849458], [17.447755394735346, 78.34861823145404], [17.447095222471898, 78.34800155182859], [17.447324, 78.347749]],
+      sensors : ["WM-WF-PR00-70"]
+    },// Example pipe coordinates
     // Add more pipe coordinates as needed
-    [[17.446997987595438,78.34955155849458],[17.445570164227213,78.34830200159946],[17.44636851845649,78.34728828544641],[17.445073749898924,78.34603336564616],[17.444881,78.346202]],
-    [[17.445585517226135,78.35123061528631],[17.444730864986067,78.35042595712052],[17.444925337105342,78.3502379800931],[17.444689923460846,78.35000217802154],[ 17.444958,78.349694],[17.445016,78.349753],[ 17.445046,78.349719],[17.445544,78.349168],[17.445584,78.348997]],
-    [[17.444925337105342,78.3502379800931],[17.445191456511374,78.3504960085306],[17.445237515599914,78.35054377393108],[17.445482,78.3503],[17.445518,78.350403],[17.446348047878896,78.34952430616724],[17.446267,78.349436]],
-    [[17.444730864986067,78.35042595712052],[17.443129,78.348927],[17.443482144331,78.34855901016505],[17.443299,78.348365]],
-    [[17.444787159568243,78.34987352212234],[17.445104455979063,78.35021149728311],[17.445369,78.349937]]
-    
+    {
+      id: 2,
+     coordinates : [[17.445793, 78.351444], [17.445585517226135, 78.35123061528631],[17.446997987595438, 78.34955155849458], [17.445570164227213, 78.34830200159946], [17.44636851845649, 78.34728828544641], [17.445073749898924, 78.34603336564616], [17.444881, 78.346202]],
+     sensors : ["WM-WF-PL00-71"]//old boys hostel
+    },
+    {
+      id : 3,
+    coordinates : [[17.445793, 78.351444],[17.445585517226135, 78.35123061528631], [17.444730864986067, 78.35042595712052], [17.444925337105342, 78.3502379800931],
+[17.444689923460846, 78.35000217802154], [17.444958, 78.349694], [17.445016, 78.349753], [17.445046, 78.349719], [17.445544, 78.349168], [17.445584, 78.348997]],
+    sensors : ["WM-WF-KB04-70"]
+    },
+    {
+      id : 4,
+    coordinates : [[17.445793, 78.351444],[17.445585517226135, 78.35123061528631],[17.444730864986067, 78.35042595712052],[17.444925337105342, 78.3502379800931], [17.445191456511374, 78.3504960085306], [17.445237515599914, 78.35054377393108], [17.445482, 78.3503], [17.445518, 78.350403], [17.446348047878896, 78.34952430616724], [17.446267, 78.349436]],
+    sensors : ["WM-WF-VN04-71"]
+    },
+    {
+      id : 5,
+    coordinates:[[17.445793, 78.351444],[17.445585517226135, 78.35123061528631],[17.444730864986067, 78.35042595712052], [17.443129, 78.348927], [17.443482144331, 78.34855901016505], [17.443299, 78.348365]],
+    sensors : ["WM-WF-PH03-70"]
+    },
+    {
+      id : 6,
+    coordinates : [[17.445793, 78.351444],[17.445585517226135, 78.35123061528631],[17.444730864986067, 78.35042595712052],[17.444925337105342, 78.3502379800931],[17.445369, 78.349937]],
+    sensors : ["WM-WF-VN01-00"]
+    },
+
   ];
+
+  function processSensorData(pipeData, latitude, longitude, markerData) {
+    const thresholdDistance = 0.0001; // Adjust this threshold as needed
+  
+    // Initialize variables
+    let pipeIds = [];
+    let val = 0;
+    let val2 = 0;
+    let cnt = 0;
+  
+    // Check distance for each pipe
+    for (const pipe of pipeData) {
+      const coordinates = pipe.coordinates;
+  
+      for (let i = 0; i < coordinates.length - 1; i++) {
+        const point1 = coordinates[i];
+        const point2 = coordinates[i + 1];
+  
+        // Calculate perpendicular distance using the formula
+        const distance = pointToLineDistance(latitude, longitude, point1[0], point1[1], point2[0], point2[1]);
+  
+        if (distance < thresholdDistance) {
+          // If within threshold, add pipe ID to the list
+          pipeIds.push(pipe.id);
+  
+          // Search for matching sensor in markerData
+          const matchingSensor = markerData.find(sensor => sensor.id === pipe.sensors[0]);
+  
+          if (matchingSensor) {
+            // Add data to variables
+            val += matchingSensor.totalflow;
+            val2 += matchingSensor.flowrate;
+            cnt++;
+          }
+  
+          break; // No need to check other points of the same pipe
+        }
+      }
+    }
+  
+    if (pipeIds.length === 0) {
+      // If no pipes are close, display an alert
+      alert("Please select on the map.");
+    }
+  
+    return { val, val2, cnt, pipeIds };
+  }
+  
+  // Function to calculate perpendicular distance from a point to a line
+  function pointToLineDistance(x, y, x1, y1, x2, y2) {
+    const A = x - x1;
+    const B = y - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+  
+    const dot = A * C + B * D;
+    const len_sq = C * C + D * D;
+    const param = dot / len_sq;
+  
+    let xx, yy;
+  
+    if (param < 0 || (x1 === x2 && y1 === y2)) {
+      xx = x1;
+      yy = y1;
+    } else if (param > 1) {
+      xx = x2;
+      yy = y2;
+    } else {
+      xx = x1 + param * C;
+      yy = y1 + param * D;
+    }
+  
+    const dx = x - xx;
+    const dy = y - yy;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
   
   return (
     <div>
@@ -456,9 +561,53 @@ const SimulationPageMain = () => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         {pipeData.map((pipe) => (
-          <Pipe points={pipe} color="blue" />
+          <Pipe key = {pipe.id} points={pipe.coordinates} color="blue" />
         ))}
+        <div key = {rerenderKey}>
         {sensorData.map((sensor) => {
+          return (
+            <Marker
+              key={sensor.id}
+              position={sensor.position}
+              draggable={true ? sensor.id[0] != 'W' : false}
+              icon={new Icon({ iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41] })}
+              onClick={(e) => handleMarkerClick(e,sensor)}
+              eventHandlers={{
+                dragend: (e) => {
+                  const updatedPosition = e.target.getLatLng(); // Get the updated position
+                  const { val, val2, cnt, pipeIds } = processSensorData(pipeData, updatedPosition.lat, updatedPosition.lng, sensorData);
+                  sensor.totalflow = val;
+                  sensor.flowrate = val2 / cnt;
+                  console.log('totalflow:', sensor.totalflow);
+                  console.log('flowrate:', sensor.flowrate);
+                  const updatedMarkers = sensorData.map((m) => {
+                    if (m.id === sensor.id) {
+                      return { ...m, position: [updatedPosition.lat, updatedPosition.lng], flowrate: sensor.flowrate, totalflow: sensor.totalflow };
+                    }
+                    return m;
+                  });
+                  setSensorData(prevData => {
+                    return updatedMarkers;
+                  }); 
+                  
+                }
+              }}
+            >
+              <Popup key={sensor.id}>
+                <SimulationSensorPopup markers={sensorData.filter((m) => m.position[0] === sensor.position[0] && m.position[1] === sensor.position[1])} onSensorDataChange={handleSensorDataChange} />
+              </Popup>
+            </Marker>
+          );
+        })}
+        {selectedSensor && (
+          <Marker position={selectedSensor.position}>
+            <Popup key={selectedSensor.id}>
+              <SimulationSensorPopup markers={sensorData.filter((m) => m.position[0] === selectedSensor.position[0] && m.position[1] === selectedSensor.position[1])} onSensorDataChange={handleSensorDataChange} />
+            </Popup>
+          </Marker>
+        )}
+        </div>
+        {/* {sensorData.map((sensor) => {
           return (
             <Marker
               key={sensor.id}
@@ -481,19 +630,20 @@ const SimulationPageMain = () => {
                 }
               }}
             >
-              <Popup>
+              <Popup key={sensor.id}>
                 <SimulationSensorPopup markers={sensorData.filter((m) => m.position[0] === sensor.position[0] && m.position[1] === sensor.position[1])} onSensorDataChange={handleSensorDataChange} />
               </Popup>
             </Marker>
           );
         })}
-        {/* {selectedSensor && (
+        {selectedSensor && (
           <Marker position={selectedSensor.position}>
-            <Popup>
+            <Popup key={selectedSensor.id}>
               <SimulationSensorPopup markers={sensorData.filter((m) => m.position[0] === selectedSensor.position[0] && m.position[1] === selectedSensor.position[1])} onSensorDataChange={handleSensorDataChange} />
             </Popup>
           </Marker>
-        )}
+        )} */}
+        {/*
         {isAddingMarker && newMarkerPosition && (
           <Marker
             position={newMarkerPosition}
