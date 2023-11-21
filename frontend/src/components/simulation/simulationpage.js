@@ -12,6 +12,7 @@ import Pipe from '../pipe';
 
 const SimulationPageMain = () => {
   // console.log("Rendering once");
+  const limit = 0.1;
   const { indexname: initialIndexName } = useParams(); // Use the indexname from useParams directly
   const [indexname, setIndexName] = useState(initialIndexName);
   const [sensorData, setSensorData] = useState([]);
@@ -22,6 +23,7 @@ const SimulationPageMain = () => {
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);
   const [simulationInterval, setSimulationInterval] = useState(null);
   const [rerenderKey, setRerenderKey] = useState(0);
+  const [pipeColor, setPipeColor] = useState([false, false, false, false, false, false, false, false, false, false, false]);
 
   // Whenever you want to force a re-render, update the rerenderKey
   useEffect(() => {
@@ -104,9 +106,9 @@ const SimulationPageMain = () => {
         });
 
         const graphComponent = await createGraphComponent(markersData);
-        console.log('Graph Component:', graphComponent)
+        // console.log('Graph Component:', graphComponent)
         setGraph(graphComponent);
-        console.log('Graph:', graph)
+        // console.log('Graph:', graph)
       } catch (error) {
         console.error('Error fetching data from Elasticsearch:', error);
       }
@@ -116,17 +118,27 @@ const SimulationPageMain = () => {
   }, []);
 
   const addMarker = () => {
-    const markerId = sensorData.length + 1;
-    const newMarker = {
-      id: markerId,
-      position: [17.4474, 78.3491],
-      flowrate: 0,
-      totalflow: 0,
-      // pressure: 0,
-      // pressurevoltage: 0
-    };
-    setSensorData([...sensorData, newMarker]);
-    setIsAddingMarker(true);
+    if(isSimulationRunning !== true)
+    {
+      Swal.fire({
+        icon: 'error',
+        title: 'Please start the simulation before adding a marker.',
+      });
+    }
+    else
+    {
+      const markerId = sensorData.length + 1;
+      const newMarker = {
+        id: markerId,
+        position: [17.4474, 78.3491],
+        flowrate: 0,
+        totalflow: 0,
+        // pressure: 0,
+        // pressurevoltage: 0
+      };
+      setSensorData([...sensorData, newMarker]);
+      setIsAddingMarker(true);
+    }
   };
 
   const handleMapClick = (e) => {
@@ -138,6 +150,25 @@ const SimulationPageMain = () => {
 
   const handleMarkerClick = (e,sensor) => {
     e.preventDefault();
+    console.log(sensor);
+    if(sensor.id[0] != 'W')
+    {
+      const updatedPosition = sensor.position; // Get the updated position
+      const { val, val2, cnt, pipeIds } = processSensorData(pipeData, updatedPosition[0], updatedPosition[1], sensorData);
+      sensor.totalflow = val;
+      sensor.flowrate = val2 / cnt;
+      console.log('totalflow:', sensor.totalflow);
+      console.log('flowrate:', sensor.flowrate);
+      const updatedMarkers = sensorData.map((m) => {
+        if (m.id === sensor.id) {
+          return { ...m, position: [updatedPosition[0], updatedPosition[1]], flowrate: sensor.flowrate, totalflow: sensor.totalflow };
+        }
+        return m;
+      });
+      setSensorData(prevData => {
+        return updatedMarkers;
+      }); 
+    }
     setSelectedSensor(sensor);
   };
 
@@ -148,7 +179,15 @@ const SimulationPageMain = () => {
         icon: 'error',
         title: 'Please save the file before starting the simulation.',
       });
-    } else {
+    }
+    else if(isSimulationRunning !== true)
+    {
+      Swal.fire({
+        icon: 'error',
+        title: 'Please start the simulation before making changes.',
+      });
+    } 
+    else {
       console.log("Form Data:", popupformData);
       console.log("Sensor ID:", markerId);
       const changedSensor = sensorData.find((sensor) => sensor.id === markerId);
@@ -164,12 +203,12 @@ const SimulationPageMain = () => {
           
       // Update the graph with the new values
         const sesnordataaftergraph = updateSensorBasedOnGraph(updatedData, graph, changedSensor, formDataSensor);
-
         setSensorData(prevData => {
           return updatedData;
         });
         console.log("after graph Sensor Data:", updatedData);
         console.log("after graph e Sensor Data:", sensorData);
+        updatePipeBasedOnGraph(graph, markerId);
     }
   };
   
@@ -224,6 +263,34 @@ const SimulationPageMain = () => {
     // Start the traversal from the changedSensor node
     traverse(id);
     return updatedData;
+  }
+
+  function updatePipeBasedOnGraph(graph, sensorid) {
+    const sensor = sensorData.find((sensor) => sensor.id === sensorid);
+    const { id, flowrate, totalflow } = sensor;
+    const neighbors = graph.getNeighbors(id);
+    const visited = new Set();
+  
+    // Depth-first traversal function
+    const traverse = (nodeId) => {
+      visited.add(nodeId); // Mark the current node as visited at the beginning
+    
+      // Update the values of the neighboring nodes in the graph
+      neighbors.forEach((neighbor) => {
+        const neighborId = neighbor.id;
+        console.log('p neibhours id:',neighborId);
+        if (!visited.has(neighborId)) {
+          const neighborData = sensorData.find((sensor) => sensor.id === neighborId);
+          if(neighborData.flowrate >= limit)
+          {
+            setPipeColor(true);
+          }
+          traverse(neighborId);
+        }
+      });
+    };
+    // Start the traversal from the changedSensor node
+    traverse(id);
   }
   
   const handleFileNameChange = (e) => {
@@ -453,6 +520,155 @@ const SimulationPageMain = () => {
 
   ];
 
+  const renderpipeData = [
+    {
+      id: 1,
+      coordinates : [[17.445793, 78.351444], [17.445585517226135, 78.35123061528631]],
+      sensors : []
+    },
+    {
+      id: 2,
+      coordinates : [[17.445585517226135, 78.35123061528631], [17.446997987595438, 78.34955155849458]],
+      sensors : []
+    },
+    {
+      id: 3,
+      coordinates : [[17.446997987595438, 78.34955155849458], [17.447755394735346, 78.34861823145404], [17.447095222471898, 78.34800155182859], [17.447324, 78.347749]],
+      sensors : ["WM-WF-PR00-70"]
+    },
+    // {
+    //   id: 1,
+    //   coordinates : [[17.447755394735346, 78.34861823145404], [17.447095222471898, 78.34800155182859]],
+    //   sensors : ["WM-WF-PR00-70"]
+    // },
+    // {
+    //   id: 1,
+    //   coordinates : [[17.447095222471898, 78.34800155182859], [17.447324, 78.347749]],
+    //   sensors : ["WM-WF-PR00-70"]
+    // },
+    {
+      id: 4,
+     coordinates : [[17.446997987595438, 78.34955155849458], [17.445570164227213, 78.34830200159946], [17.44636851845649, 78.34728828544641], [17.445073749898924, 78.34603336564616], [17.444881, 78.346202]],
+     sensors : ["WM-WF-PL00-71"]//old boys hostel
+    },
+    // {
+    //   id: 2,
+    //  coordinates : [[17.445570164227213, 78.34830200159946], [17.44636851845649, 78.34728828544641]],
+    //  sensors : ["WM-WF-PL00-71"]//old boys hostel
+    // },
+    // {
+    //   id: 2,
+    //  coordinates : [[17.44636851845649, 78.34728828544641], [17.445073749898924, 78.34603336564616]],
+    //  sensors : ["WM-WF-PL00-71"]//old boys hostel
+    // },
+    // {
+    //   id: 2,
+    //  coordinates : [[17.445073749898924, 78.34603336564616], [17.444881, 78.346202]],
+    //  sensors : ["WM-WF-PL00-71"]//old boys hostel
+    // },
+    {
+      id : 5,
+    coordinates : [[17.445585517226135, 78.35123061528631], [17.444730864986067, 78.35042595712052]],
+    sensors : []
+    },
+    {
+      id : 6,
+    coordinates : [[17.444730864986067, 78.35042595712052], [17.444925337105342, 78.3502379800931]],
+    sensors : []
+    },
+    {
+      id : 7,
+    coordinates : [[17.444925337105342, 78.3502379800931], [17.444689923460846, 78.35000217802154], [17.444958, 78.349694], [17.445016, 78.349753], [17.445046, 78.349719], [17.445544, 78.349168], [17.445584, 78.348997]],
+    sensors : ["WM-WF-KB04-70", "WM-WF-KB04-72", "WM-WF-KB04-73", "WM-WF-VN04-71", "WM-WF-PH04-70", "WM-WF-PH04-71", "WM-WF-BB04-70", "WM-WF-BB04-71"]
+    },
+    // {
+    //   id : 3,
+    // coordinates : [[17.444689923460846, 78.35000217802154], [17.444958, 78.349694]],
+    // sensors : ["WM-WF-KB04-70"]
+    // },
+    // {
+    //   id : 3,
+    // coordinates : [[17.444958, 78.349694], [17.445016, 78.349753]],
+    // sensors : ["WM-WF-KB04-70"]
+    // },
+    // {
+    //   id : 3,
+    // coordinates : [[17.445016, 78.349753], [17.445046, 78.349719]],
+    // sensors : ["WM-WF-KB04-70"]
+    // },
+    // {
+    //   id : 3,
+    // coordinates : [[17.445046, 78.349719], [17.445544, 78.349168]],
+    // sensors : ["WM-WF-KB04-70"]
+    // },
+    // {
+    //   id : 3,
+    // coordinates : [[17.445544, 78.349168], [17.445584, 78.348997]],
+    // sensors : ["WM-WF-KB04-70"]
+    // },
+    // {
+    //   id : 4,
+    // coordinates : [[17.444925337105342, 78.3502379800931], [17.445191456511374, 78.3504960085306]],
+    // sensors : ["WM-WF-VN04-71"]
+    // },
+    // {
+    //   id : 4,
+    // coordinates : [[17.445191456511374, 78.3504960085306], [17.445237515599914, 78.35054377393108]],
+    // sensors : ["WM-WF-VN04-71"]
+    // },
+    // {
+    //   id : 4,
+    // coordinates : [[17.445237515599914, 78.35054377393108], [17.445482, 78.3503]],
+    // sensors : ["WM-WF-VN04-71"]
+    // },
+    // {
+    //   id : 4,
+    // coordinates : [[17.445482, 78.3503], [17.445518, 78.350403]],
+    // sensors : ["WM-WF-VN04-71"]
+    // },
+    // {
+    //   id : 4,
+    // coordinates : [[17.445518, 78.350403], [17.446348047878896, 78.34952430616724]],
+    // sensors : ["WM-WF-VN04-71"]
+    // },
+    // {
+    //   id : 4,
+    // coordinates : [[17.446348047878896, 78.34952430616724], [17.446267, 78.349436]],
+    // sensors : ["WM-WF-VN04-71"]
+    // },
+    {
+      id : 8,
+    coordinates : [[17.444925337105342, 78.3502379800931], [17.445191456511374, 78.3504960085306], [17.445237515599914, 78.35054377393108], [17.445482, 78.3503], [17.445518, 78.350403], [17.446348047878896, 78.34952430616724], [17.446267, 78.349436]],
+    sensors : ["WM-WF-VN04-71", "WM-WF-PH02-70"]
+    },
+    // {
+    //   id : 5,
+    // coordinates:[[17.444730864986067, 78.35042595712052], [17.443129, 78.348927]],
+    // sensors : ["WM-WF-PH03-70"]
+    // },
+    // {
+    //   id : 5,
+    // coordinates:[[17.443129, 78.348927], [17.443482144331, 78.34855901016505]],
+    // sensors : ["WM-WF-PH03-70"]
+    // },
+    // {
+    //   id : 5,
+    // coordinates:[[17.443482144331, 78.34855901016505], [17.443299, 78.348365]],
+    // sensors : ["WM-WF-PH03-70"]
+    // },
+    {
+      id : 9,
+    coordinates:[[17.444730864986067, 78.35042595712052], [17.443129, 78.348927], [17.443482144331, 78.34855901016505], [17.443299, 78.348365]],
+    sensors : ["WM-WF-PH03-70", "WM-WF-PH03-00", "WM-WF-PH03-02", "WM-WF-PH03-03"]
+    },
+    {
+      id : 10,
+    coordinates : [[17.444925337105342, 78.3502379800931],[17.445369, 78.349937]],
+    sensors : ["WM-WF-VN01-00"]
+    }
+
+  ];
+
   function processSensorData(pipeData, latitude, longitude, markerData) {
     const thresholdDistance = 0.0001; // Adjust this threshold as needed
   
@@ -560,10 +776,11 @@ const SimulationPageMain = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        {pipeData.map((pipe) => (
+        {renderpipeData.map((pipe) => (
           <Pipe key = {pipe.id} points={pipe.coordinates} color="blue" />
         ))}
         <div key = {rerenderKey}>
+        
         {sensorData.map((sensor) => {
           return (
             <Marker

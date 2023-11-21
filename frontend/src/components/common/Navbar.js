@@ -109,7 +109,7 @@ const Navbar = (props) => {
       <div style={{ marginBottom: "70px" }}>
           <AppBar
               sx={{
-                  background: "white",
+                  background: "black",
                   position: "fixed",
               }}
           >
@@ -185,15 +185,15 @@ const Navbar = (props) => {
                   </> :
                       <>
                           <img src={logo} style={{ "height": "45px", "width": "45px" }}></img>
-                          <Tabs value={'/user/' + location.pathname.split('/')[2]} variant="scrollable" scrollButtons allowScrollButtonsMobile aria-label="scrollable force tabs example">
-                              <Tab label="Map" value={routes[0]} component={Link} to={routes[0]} />
+                          <Tabs value={'/user/' + location.pathname.split('/')[2]} textcolor="primary" indicatorcolor="secondary" variant="scrollable" scrollButtons allowScrollButtonsMobile aria-label="scrollable force tabs example">
+                              <Tab label="Map" value={routes[0]} component={Link} to={routes[0]} style={{ color: '#fff' }} />
                               
-                              <Tab label="Simulation" value={routes[1]} component={Link} to={routes[1]} />
+                              <Tab label="Simulation" value={routes[1]} component={Link} to={routes[1]} style={{ color: '#fff' }}/>
 
-                              <Tab label="Visualisations" value={routes[3]} component={Link} to={routes[3]} />
-                              
-                              <Tab label="Log out" onClick={handleLogout}/>
-                              
+                              <Tab label="Visualisations" value={routes[3]} component={Link} to={routes[3]} style={{ color: '#fff' }}/>
+
+                              <Tab onClick={handleLogout} icon={<LogoutIcon/>} style={{color: '#fff'}}/>
+                                                            
                           </Tabs>
                       </>
                   }
