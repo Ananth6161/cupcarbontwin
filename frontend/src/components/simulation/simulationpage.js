@@ -23,7 +23,7 @@ const SimulationPageMain = () => {
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);
   const [simulationInterval, setSimulationInterval] = useState(null);
   const [rerenderKey, setRerenderKey] = useState(0);
-  const [pipeColor, setPipeColor] = useState([false, false, false, false, false, false, false, false, false, false, false]);
+  const [pipeColor, setPipeColor] = useState('grey');
 
   // Whenever you want to force a re-render, update the rerenderKey
   useEffect(() => {
@@ -208,7 +208,7 @@ const SimulationPageMain = () => {
         });
         console.log("after graph Sensor Data:", updatedData);
         console.log("after graph e Sensor Data:", sensorData);
-        updatePipeBasedOnGraph(graph, markerId);
+        // updatePipeBasedOnGraph(graph, markerId);
     }
   };
   
@@ -246,7 +246,7 @@ const SimulationPageMain = () => {
     
           
             // Check if flowrate is zero for the neighbor before calculation
-            neighborData.flowrate *= 1 + ratio;
+            neighborData.flowrate = newData.flowrate;
             neighborData.totalflow *= 1 + ratio;
     
             updatedData = updatedData.map((sensor) => {
@@ -281,10 +281,10 @@ const SimulationPageMain = () => {
         console.log('p neibhours id:',neighborId);
         if (!visited.has(neighborId)) {
           const neighborData = sensorData.find((sensor) => sensor.id === neighborId);
-          if(neighborData.flowrate >= limit)
-          {
-            setPipeColor(true);
-          }
+          // if(neighborData.flowrate >= limit)
+          // {
+          //   setPipeColor(true);
+          // }
           traverse(neighborId);
         }
       });
@@ -441,15 +441,19 @@ const SimulationPageMain = () => {
       });
     } else {
       setIsSimulationRunning(true);
-  
+      setPipeColor(prevData => {
+        return 'blue';
+      });
+      // console.log(pipeColor);
       // Set up an interval to periodically check and upload data
       const intervalId = setInterval(async () => {
-        // console.log('hi');
+        console.log('hi');
         try {
           const markersData = await fetchData(); // Fetch the latest data
           // console.log('dheeraj:', markersData);
   
           // Compare your sensorData with the latest data
+          console.log('sensorData:', sensorData);
           if (isDifferent(markersData, sensorData)) {
             // Upload the data if it's different
             const requestData = {
@@ -480,6 +484,10 @@ const SimulationPageMain = () => {
 
   const stopSimulation = () => {
     setIsSimulationRunning(false);
+    // setPipeColor('grey');
+    setPipeColor(prevData => {
+      return 'grey';
+    });
     clearInterval(simulationInterval); // Clear the interval to stop the simulation
   };
 
@@ -777,7 +785,7 @@ const SimulationPageMain = () => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         {renderpipeData.map((pipe) => (
-          <Pipe key = {pipe.id} points={pipe.coordinates} color="blue" />
+          <Pipe key = {pipe.id} points={pipe.coordinates} color={pipeColor} />
         ))}
         <div key = {rerenderKey}>
         
